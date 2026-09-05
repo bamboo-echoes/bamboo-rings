@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12-Segment Music Wheel - HTML Labels & Markdown</title>
+  <!-- Light Marked parser for client-side Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100vw;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: #111111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      touch-action: pan-y; /* Allows vertical scrolling for the page */
+    }
+    
+    /* Container strictly wrapping the SVG Wheel at the top */
+    #wheel-container {
+      width: 100vw;
+      max-width: 100%;
+      display: flex;
+      align-items: flex-start; /* Positions wheel at top, not centered */
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 10px;
+    }
+    
+    svg {
+      width: 100vw;
+      max-width: 600px; /* Limits max diameter on larger screens */
+      height: 100vw;
+      max-height: 600px;
+      display: block;
+    }
+    .ring {
+      cursor: grab;
+      touch-action: none; /* Only block native scroll when user drags a wheel ring directly */
+    }
+    .ring:active {
+      cursor: grabbing;
+    }
+    .segment {
+      stroke-width: 2;
+    }
+    .arrow {
+      fill: #ffffff;
+      stroke: #000000;
+      stroke-width: 3;
+      stroke-linejoin: round;
+      pointer-events: none;
+      filter: drop-shadow(0px 0px 3px rgba(0,0,0,0.8));
+    }
+    
+    /* HTML Label Container Styling */
+    .html-label-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      text-align: center;
+      line-height: 1;
+    }
+    .html-label-content {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-weight: bold;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    /* Markdown Footer Styling */
+    #markdown-footer {
+      width: 100%;
+      max-width: 800px;
+      padding: 2rem 1.5rem 4rem 1.5rem;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      user-select: text; /* Allows text highlighting in footer */
+    }
+    #markdown-footer h1, #markdown-footer h2, #markdown-footer h3 {
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 0.3rem;
+    }
+    #markdown-footer p {
+      margin-bottom: 1rem;
+    }
+    #markdown-footer ul, #markdown-footer ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    #markdown-footer code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    #markdown-footer a {
+      color: #4da6ff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Isolated Wheel Div at Top -->
+  <div id="wheel-container">
+    <svg id="wheelSvg"></svg>
+  </div>
+
+  <div id="markdown-footer"></div>
+
+  <script>
+    const CONFIG = {
+      // Toggle to force ring labels to always remain visually upright
+      uprightLabels: true,
+
+      colors: {
+        background: '#111111', // Main canvas background
+        outer: '#FFef00',      // Outer ring background
+        middle: '#009900',     // Middle ring background
+        inner: '#0088FF'       // Inner ring background
+      },
+
+      // Configurable label text colors
+      labelColors: {
+        default: '#111111',    // Fallback label color
+        middle: '#111111',     // Middle ring label text color
+        inner: '#111111'       // Inner ring label text color
+      },
+
+      // Configurable line stroke color for segment borders
+      lineColor: '#000000',
+
+      // Configurable circle dot colors
+      circleColors: {
+        fill: '#555555',            // Solid fill color & outline color for half dots
+        outlineStroke: '#555555',   // Stroke color for empty/outlined dots
+        halfGradientSecondary: 'transparent' // Secondary stop color for half dots
+      },
+
+      // Configurable font sizes as a fraction of ring width
+      fontSizes: {
+        middleRatio: 0.3, // Font size relative to middle ring width
+        innerRatio: 0.3   // Font size relative to inner ring width
+      },
+
+      thicknessWeights: {
+        outer: 1,
+        middle: 0.8,
+        inner: 0.8
+      },
+
+      // Configurable Markdown Content at the bottom of the page
+      markdownColor: '#E0E0E0',
+      bottomMarkdown: `
+# 标题
+
+**重点**. *Whatever* underline
+
+### 使用指南与指示
+* **外圈 (Outer Ring):** 解释
+* **中圈 (Middle Ring):** 解释
+* **内圈 (Inner Ring):** 解释
+
+> **Tip:** Click/tap and drag any ring to spin it. The rings will snap into position automatically when released!
+      `,
+	  
+	  outerDotRadius: 4,
+
+      // Exactly 24 dot rows (2 rows x 12 segments)
+      // 1.0 = Solid, 0.5 = Half-solid, 0.0 = Outline
+      outerDotColumns: [
+        // Segment 0
+        [1, 1, 1, 0, 0, 0], [1, 1, 1, 0, 0, 0],
+        // Segment 1
+        [1, 1, 0, 1, 1, 1], [1, 1, 0, 1, 0, 0],
+        // Segment 2
+        [1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 0],
+        // Segment 3
+        [1, 0, 1, 1, 1, 1], [1, 0, 1, 0, 0, 0],		
+        // Segment 4
+        [1, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0],
+        // Segment 5
+        [0, 1, 0, 1, 1, 1], [0, 1, 0, 1, 1, 1],
+        // Segment 6
+        [0, 0, 0, 0, 0, 1], [0, 0, 0, 1, 0, 0],
+        // Segment 7
+        [1, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1],
+        // Segment 8
+        [1, 1, 1, 1, 1, 0.5], [1, 1, 1, 1, 1, 0.5],
+        // Segment 9
+        [1, 1, 1, 1, 1, 0], [1, 1, 1, 1, 1, 0],
+        // Segment 10
+        [1, 1, 1, 1, 0.5, 0], [1, 1, 1, 1, 0.5, 0],
+        // Segment 11
+        [1, 1, 1, 1, 0, 0], [1, 1, 1, 1, 0, 0]
+      ],
+
+      middleRingLabels: [
+        "A", "A#<br/>B♭", "B", "C", "C#<br/>D♭", "D", 
+        "D#<br/>E♭", "E", "F", "F#<br/>G♭", "G", "G#<br/>A♭"
+      ],
+
+      innerRingLabels: [
+        "1", "", "2", "", "3", "4", 
+        "", "5", "", "<u>6</u>", "", "7"
+      ]
+    };
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const SEGMENTS = 12;
+    const DEG_PER_SEGMENT = 360 / SEGMENTS;
+    const FRICTION = 0.94;
+    const NUM_ROWS = 6;
+
+    const svg = document.getElementById('wheelSvg');
+    let center = { x: 0, y: 0 };
+    let ringStates = {};
+    let ringsConfig = [];
+
+    function renderMarkdownFooter() {
+      const footer = document.getElementById('markdown-footer');
+      if (!footer) return;
+
+      footer.style.color = CONFIG.markdownColor || '#FFFFFF';
+
+      if (typeof marked !== 'undefined' && marked.parse) {
+        footer.innerHTML = marked.parse(CONFIG.bottomMarkdown || '');
+      } else {
+        footer.innerHTML = (CONFIG.bottomMarkdown || '').replace(/\n/g, '<br/>');
+      }
+    }
+
+    function updateBackground() {
+      if (CONFIG.colors && CONFIG.colors.background) {
+        document.body.style.backgroundColor = CONFIG.colors.background;
+      }
+    }
+
+    function updateDimensions() {
+      updateBackground();
+
+      const rect = svg.getBoundingClientRect();
+      const size = Math.min(rect.width, rect.height || rect.width);
+
+      center.x = rect.width / 2;
+      center.y = rect.height / 2;
+
+      const maxRadius = (size / 2) * 0.95;
+
+      const rawOuter = Math.max(CONFIG.thicknessWeights.outer || 0, 0);
+      const rawMiddle = Math.max(CONFIG.thicknessWeights.middle || 0, 0);
+      const rawInner = Math.max(CONFIG.thicknessWeights.inner || 0, 0);
+
+      const totalWeight = rawOuter + rawMiddle + rawInner || 1;
+
+      const outerThickness = maxRadius * (rawOuter / totalWeight);
+      const middleThickness = maxRadius * (rawMiddle / totalWeight);
+      const innerThickness = maxRadius * (rawInner / totalWeight);
+
+      const rOuterMax = maxRadius;
+      const rOuterMin = rOuterMax - outerThickness;
+
+      const rMiddleMax = rOuterMin;
+      const rMiddleMin = rMiddleMax - middleThickness;
+
+      const rInnerMax = rMiddleMin;
+      const rInnerMin = Math.max(rInnerMax - innerThickness, 0);
+
+      ringsConfig = [
+        { id: 'outerRing',  rOuter: rOuterMax,  rInner: rOuterMin,  color: CONFIG.colors.outer,  arrowType: 'inward',  type: 'dots' },
+        { id: 'middleRing', rOuter: rMiddleMax, rInner: rMiddleMin, color: CONFIG.colors.middle, arrowType: null,    type: 'middleLabels' },
+        { id: 'innerRing',  rOuter: rInnerMax,  rInner: rInnerMin,  color: CONFIG.colors.inner,  arrowType: 'outward', type: 'innerLabels' }
+      ];
+
+      renderRings();
+    }
+
+    function createSegmentPath(rInner, rOuter, startAngleDeg, endAngleDeg) {
+      const toRad = deg => (deg - 90) * (Math.PI / 180);
+      const startRad = toRad(startAngleDeg);
+      const endRad = toRad(endAngleDeg);
+
+      const x1 = center.x + rOuter * Math.cos(startRad);
+      const y1 = center.y + rOuter * Math.sin(startRad);
+      const x2 = center.x + rOuter * Math.cos(endRad);
+      const y2 = center.y + rOuter * Math.sin(endRad);
+
+      const x3 = center.x + rInner * Math.cos(endRad);
+      const y3 = center.y + rInner * Math.sin(endRad);
+      const x4 = center.x + rInner * Math.cos(startRad);
+      const y4 = center.y + rInner * Math.sin(startRad);
+
+      return `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 0 0 ${x4} ${y4} Z`;
+    }
+
+    function renderSegmentDots(rInner, rOuter, startAngleDeg, endAngleDeg, segIndex) {
+      const g = document.createElementNS(SVG_NS, 'g');
+
+      const ringWidth = rOuter - rInner;
+      const dotRadius = CONFIG.outerDotRadius ? CONFIG.outerDotRadius : Math.max(ringWidth * 0.032, 2.5);
+      
+      const leftAngle = startAngleDeg + 3.5;
+      const rightAngle = endAngleDeg - 3.5;
+
+      const startR = rInner + ringWidth * 0.18;
+      const endR = rOuter - ringWidth * 0.18;
+      const rStep = (endR - startR) / (NUM_ROWS - 1);
+
+      const leftRowIndex = segIndex * 2;
+      const rightRowIndex = segIndex * 2 + 1;
+
+      const formatRowData = (raw) => {
+        const arr = Array.isArray(raw) ? raw.slice(0, NUM_ROWS) : [];
+        while (arr.length < NUM_ROWS) arr.push(0);
+        return arr;
+      };
+
+      const leftRowData = formatRowData(CONFIG.outerDotColumns[leftRowIndex]);
+      const rightRowData = formatRowData(CONFIG.outerDotColumns[rightRowIndex]);
+
+      const renderRowAtAngle = (rowData, angleDeg) => {
+        const rad = (angleDeg - 90) * (Math.PI / 180);
+        for (let idx = 0; idx < NUM_ROWS; idx++) {
+          const val = rowData[idx];
+          const r = startR + idx * rStep;
+          const cx = center.x + r * Math.cos(rad);
+          const cy = center.y + r * Math.sin(rad);
+
+          const circle = document.createElementNS(SVG_NS, 'circle');
+          circle.setAttribute('cx', cx);
+          circle.setAttribute('cy', cy);
+          circle.setAttribute('r', dotRadius);
+
+          if (val === 1) {
+            circle.setAttribute('fill', CONFIG.circleColors.fill);
+            circle.setAttribute('stroke', CONFIG.circleColors.fill);
+          } else if (val === 0.5) {
+            const gradId = `halfGrad_${Math.round(angleDeg * 100)}`;
+            let defs = svg.querySelector('defs');
+            if (!defs) {
+              defs = document.createElementNS(SVG_NS, 'defs');
+              svg.appendChild(defs);
+            }
+            if (!document.getElementById(gradId)) {
+              const grad = document.createElementNS(SVG_NS, 'linearGradient');
+              grad.setAttribute('id', gradId);
+              grad.setAttribute('x1', '100%');
+              grad.setAttribute('y1', '0%');
+              grad.setAttribute('x2', '0%');
+              grad.setAttribute('y2', '0%');
+              grad.setAttribute('gradientTransform', `rotate(${angleDeg + 90}, 0.5, 0.5)`);
+
+              const stop1 = document.createElementNS(SVG_NS, 'stop');
+              stop1.setAttribute('offset', '50%');
+              stop1.setAttribute('stop-color', CONFIG.circleColors.fill);
+
+              const stop2 = document.createElementNS(SVG_NS, 'stop');
+              stop2.setAttribute('offset', '50%');
+              stop2.setAttribute('stop-color', CONFIG.circleColors.halfGradientSecondary || 'transparent');
+
+              grad.appendChild(stop1);
+              grad.appendChild(stop2);
+              defs.appendChild(grad);
+            }
+
+            circle.setAttribute('fill', `url(#${gradId})`);
+            circle.setAttribute('stroke', CONFIG.circleColors.fill);
+            circle.setAttribute('stroke-width', '1.5');
+          } else {
+            circle.setAttribute('fill', 'none');
+            circle.setAttribute('stroke', CONFIG.circleColors.outlineStroke);
+            circle.setAttribute('stroke-width', '2');
+          }
+          g.appendChild(circle);
+        }
+      };
+
+      renderRowAtAngle(leftRowData, leftAngle);
+      renderRowAtAngle(rightRowData, rightAngle);
+
+      return g;
+    }
+
+    function renderLabelForSegment(rInner, rOuter, midAngleDeg, labelText, ratio, radialPosition = 0.5, textColor, currentRingRotation = 0) {
+      const g = document.createElementNS(SVG_NS, 'g');
+      
+      const rPos = rInner + (rOuter - rInner) * radialPosition;
+      const rad = (midAngleDeg - 90) * (Math.PI / 180);
+      const cx = center.x + rPos * Math.cos(rad);
+      const cy = center.y + rPos * Math.sin(rad);
+
+      const ringWidth = rOuter - rInner;
+      
+      const sizeW = ringWidth;
+      const sizeH = ringWidth;
+
+      const foreignObject = document.createElementNS(SVG_NS, 'foreignObject');
+      foreignObject.setAttribute('width', sizeW);
+      foreignObject.setAttribute('height', sizeH);
+      foreignObject.setAttribute('x', cx - sizeW / 2);
+      foreignObject.setAttribute('y', cy - sizeH / 2);
+      foreignObject.setAttribute('data-mid-angle', midAngleDeg);
+      foreignObject.setAttribute('data-cx', cx);
+      foreignObject.setAttribute('data-cy', cy);
+      foreignObject.style.pointerEvents = 'none';
+      foreignObject.style.overflow = 'visible';
+
+      let textRot = 0;
+      if (CONFIG.uprightLabels) {
+        textRot = -currentRingRotation;
+      } else {
+        textRot = midAngleDeg;
+        if (textRot > 90 && textRot < 270) {
+          textRot += 180;
+        }
+      }
+
+      foreignObject.setAttribute('transform', `rotate(${textRot}, ${cx}, ${cy})`);
+
+      const containerDiv = document.createElement('div');
+      containerDiv.className = 'html-label-container';
+
+      const contentSpan = document.createElement('span');
+      contentSpan.className = 'html-label-content';
+      
+      const fontSizeRatio = ratio || 0.35;
+      const fontSize = Math.max(ringWidth * fontSizeRatio, 10);
+      contentSpan.style.fontSize = `${fontSize}px`;
+      
+      const color = textColor || (CONFIG.labelColors ? CONFIG.labelColors.default : '#111111');
+      contentSpan.style.color = color;
+      
+      contentSpan.innerHTML = labelText || '';
+
+      containerDiv.appendChild(contentSpan);
+      foreignObject.appendChild(containerDiv);
+      g.appendChild(foreignObject);
+
+      return g;
+    }
+
+    function drawArrow(rInner, rOuter, midAngleDeg, direction) {
+      const ringWidth = rOuter - rInner;
+      if (ringWidth <= 8) return document.createElementNS(SVG_NS, 'g');
+
+      const len = ringWidth * 0.35; 
+      const head = len * 0.45;
+      const shaft = len * 0.2;
+
+      const yTip = direction === 'inward' ? -(rInner + ringWidth * 0.1) : -(rOuter - ringWidth * 0.3);
+      const yBase = direction === 'inward' ? -(rOuter - ringWidth * 0.1) : -(rInner + ringWidth * 0.4);
+
+      const path = document.createElementNS(SVG_NS, 'path');
+      let d = "";
+
+      if (direction === 'inward') {
+        d = `M 0,${yTip} L ${head},${yTip - head} L ${shaft},${yTip - head} L ${shaft},${yBase} L -${shaft},${yBase} L -${shaft},${yTip - head} L -${head},${yTip - head} Z`;
+      } else {
+        d = `M 0,${yTip} L ${head},${yTip + head} L ${shaft},${yTip + head} L ${shaft},${yBase} L -${shaft},${yBase} L -${shaft},${yTip + head} L -${head},${yTip + head} Z`;
+      }
+
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'arrow');
+
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('transform', `translate(${center.x}, ${center.y}) rotate(${midAngleDeg})`);
+      g.appendChild(path);
+
+      return g;
+    }
+
+    function renderRings() {
+      const existingRotations = {};
+      Object.keys(ringStates).forEach(id => {
+        existingRotations[id] = ringStates[id].rotation;
+      });
+
+      svg.innerHTML = '';
+      ringStates = {};
+
+      ringsConfig.forEach((cfg) => {
+        const ringGroup = document.createElementNS(SVG_NS, 'g');
+        ringGroup.setAttribute('id', cfg.id);
+        ringGroup.setAttribute('class', 'ring');
+        
+        const currentRot = existingRotations[cfg.id] || 0;
+        ringGroup.setAttribute('transform', `rotate(${currentRot}, ${center.x}, ${center.y})`);
+
+        ringStates[cfg.id] = {
+          element: ringGroup,
+          rotation: currentRot,
+          velocity: 0,
+          animId: null,
+          rOuter: cfg.rOuter,
+          rInner: cfg.rInner
+        };
+
+        const segmentLayer = document.createElementNS(SVG_NS, 'g');
+        const overlayLayer = document.createElementNS(SVG_NS, 'g');
+
+        ringGroup.appendChild(segmentLayer);
+        ringGroup.appendChild(overlayLayer);
+
+        for (let i = 0; i < SEGMENTS; i++) {
+          const startAngle = i * DEG_PER_SEGMENT;
+          const endAngle = startAngle + DEG_PER_SEGMENT;
+          const midAngle = (startAngle + endAngle) / 2;
+
+          const path = document.createElementNS(SVG_NS, 'path');
+          path.setAttribute('d', createSegmentPath(cfg.rInner, cfg.rOuter, startAngle, endAngle));
+          path.setAttribute('class', 'segment');
+          path.setAttribute('fill', cfg.color);
+          path.setAttribute('stroke', CONFIG.lineColor || '#333333');
+          segmentLayer.appendChild(path);
+
+          if (cfg.type === 'dots') {
+            const dotsGroup = renderSegmentDots(cfg.rInner, cfg.rOuter, startAngle, endAngle, i);
+            overlayLayer.appendChild(dotsGroup);
+          }
+
+          if (cfg.type === 'middleLabels') {
+            const labelText = CONFIG.middleRingLabels[i % CONFIG.middleRingLabels.length];
+            const ratio = CONFIG.fontSizes ? CONFIG.fontSizes.middleRatio : 0.35;
+            const textColor = CONFIG.labelColors ? (CONFIG.labelColors.middle || CONFIG.labelColors.default) : '#111111';
+            const labelGroup = renderLabelForSegment(cfg.rInner, cfg.rOuter, midAngle, labelText, ratio, 0.5, textColor, currentRot);
+            overlayLayer.appendChild(labelGroup);
+          }
+
+          if (cfg.type === 'innerLabels') {
+            const labelText = CONFIG.innerRingLabels[i % CONFIG.innerRingLabels.length];
+            const ratio = CONFIG.fontSizes ? CONFIG.fontSizes.innerRatio : 0.35;
+            const textColor = CONFIG.labelColors ? (CONFIG.labelColors.inner || CONFIG.labelColors.default) : '#111111';
+            const labelGroup = renderLabelForSegment(cfg.rInner, cfg.rOuter, midAngle, labelText, ratio, 0.85, textColor, currentRot);
+            overlayLayer.appendChild(labelGroup);
+          }
+
+          if (i === 0 && cfg.arrowType) {
+            const arrowElement = drawArrow(cfg.rInner, cfg.rOuter, midAngle, cfg.arrowType);
+            overlayLayer.appendChild(arrowElement);
+          }
+        }
+
+        ringGroup.addEventListener('mousedown', (e) => onRingPointerDown(e, cfg.id));
+        ringGroup.addEventListener('touchstart', (e) => onRingPointerDown(e, cfg.id), { passive: false });
+
+        svg.appendChild(ringGroup);
+      });
+    }
+
+    let activeRing = null;
+    let startAngle = 0;
+    let initialRotation = 0;
+    let lastAngle = 0;
+    let lastTime = 0;
+
+    function getMouseAngle(e) {
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const rect = svg.getBoundingClientRect();
+      const dx = clientX - (rect.left + center.x);
+      const dy = clientY - (rect.top + center.y);
+      return Math.atan2(dy, dx) * (180 / Math.PI);
+    }
+
+    function applyRotation(ringState, angle) {
+      ringState.rotation = angle;
+      ringState.element.setAttribute('transform', `rotate(${angle}, ${center.x}, ${center.y})`);
+
+      if (CONFIG.uprightLabels) {
+        const labels = ringState.element.querySelectorAll('foreignObject');
+        labels.forEach(fo => {
+          const cx = fo.getAttribute('data-cx');
+          const cy = fo.getAttribute('data-cy');
+          fo.setAttribute('transform', `rotate(${-angle}, ${cx}, ${cy})`);
+        });
+      }
+    }
+
+    function snapToSegment(ringState) {
+      const targetRotation = Math.round(ringState.rotation / DEG_PER_SEGMENT) * DEG_PER_SEGMENT;
+      const startRot = ringState.rotation;
+      const delta = targetRotation - startRot;
+      let progress = 0;
+
+      function snapStep() {
+        progress += 0.12;
+        if (progress >= 1) {
+          applyRotation(ringState, targetRotation);
+          ringState.animId = null;
+        } else {
+          const current = startRot + delta * (1 - (1 - progress) * (1 - progress));
+          applyRotation(ringState, current);
+          ringState.animId = requestAnimationFrame(snapStep);
+        }
+      }
+
+      ringState.animId = requestAnimationFrame(snapStep);
+    }
+
+    function startInertia(ringState) {
+      function inertiaStep() {
+        ringState.velocity *= FRICTION;
+
+        if (Math.abs(ringState.velocity) < 0.1) {
+          ringState.velocity = 0;
+          snapToSegment(ringState);
+        } else {
+          applyRotation(ringState, ringState.rotation + ringState.velocity);
+          ringState.animId = requestAnimationFrame(inertiaStep);
+        }
+      }
+
+      ringState.animId = requestAnimationFrame(inertiaStep);
+    }
+
+    function onRingPointerDown(e, ringId) {
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const rect = svg.getBoundingClientRect();
+      const dx = clientX - (rect.left + center.x);
+      const dy = clientY - (rect.top + center.y);
+      const clickDist = Math.sqrt(dx * dx + dy * dy);
+
+      // Verify click radial distance matches targeted ring
+      let targetRingId = ringId;
+      for (const cfg of ringsConfig) {
+        if (clickDist >= cfg.rInner && clickDist <= cfg.rOuter) {
+          targetRingId = cfg.id;
+          break;
+        }
+      }
+
+      activeRing = ringStates[targetRingId];
+      if (!activeRing) return;
+
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+
+      if (activeRing.animId) {
+        cancelAnimationFrame(activeRing.animId);
+      }
+
+      startAngle = getMouseAngle(e);
+      initialRotation = activeRing.rotation;
+      lastAngle = startAngle;
+      lastTime = performance.now();
+      activeRing.velocity = 0;
+
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+      window.addEventListener('touchmove', onPointerMove, { passive: false });
+      window.addEventListener('touchend', onPointerUp);
+    }
+
+    function onPointerMove(e) {
+      if (!activeRing) return;
+      if (e.cancelable) e.preventDefault();
+      
+      const currentAngle = getMouseAngle(e);
+      const now = performance.now();
+      const dt = Math.max(now - lastTime, 16);
+
+      let angleDelta = currentAngle - lastAngle;
+      if (angleDelta > 180) angleDelta -= 360;
+      if (angleDelta < -180) angleDelta += 360;
+
+      activeRing.velocity = angleDelta * (16.6 / dt);
+
+      const totalDelta = currentAngle - startAngle;
+      applyRotation(activeRing, initialRotation + totalDelta);
+
+      lastAngle = currentAngle;
+      lastTime = now;
+    }
+
+    function onPointerUp() {
+      if (!activeRing) return;
+
+      window.removeEventListener('mousemove', onPointerMove);
+      window.removeEventListener('mouseup', onPointerUp);
+      window.removeEventListener('touchmove', onPointerMove);
+      window.removeEventListener('touchend', onPointerUp);
+
+      if (Math.abs(activeRing.velocity) > 0.4) {
+        startInertia(activeRing);
+      } else {
+        snapToSegment(activeRing);
+      }
+
+      activeRing = null;
+    }
+
+    window.addEventListener('resize', updateDimensions);
+    renderMarkdownFooter();
+    updateDimensions();
+  </script>
+</body>
+</html>
