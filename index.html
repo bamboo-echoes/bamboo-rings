@@ -129,9 +129,29 @@
 
       colors: {
         background: '#111111', // Main canvas background
-        outer: '#FFef00',      // Outer ring background
-        middle: '#009900',     // Middle ring background
-        inner: '#0088FF'       // Inner ring background
+        
+        // Default single ring colors (used as fallbacks if segment array isn't provided)
+        outer: '#FFef00',      
+        middle: '#009900',     
+        inner: '#0088FF',
+
+        // Configure individual colors for each segment (12 segments per ring).
+        // Set to null or remove a ring's array to use its uniform fallback color above.
+        outerSegments: [
+          '#FFef00', '#FFef00', '#FFef00', '#FFef00', 
+          '#FFef00', '#FFef00', '#FFef00', '#FFef00', 
+          '#FFef00', '#FFef00', '#FFef00', '#FFef00'
+        ],
+        middleSegments: [
+          '#009900', '#009900', '#009900', '#009900', 
+          '#009900', '#009900', '#009900', '#009900', 
+          '#009900', '#009900', '#009900', '#009900'
+        ],
+        innerSegments: [
+          '#0088FF', '#0088FF', '#0088FF', '#0088FF', 
+          '#0088FF', '#0088FF', '#0088FF', '#0088FF', 
+          '#0088FF', '#0088FF', '#0088FF', '#0088FF'
+        ]
       },
 
       // Configurable label text colors
@@ -283,9 +303,9 @@
       const rInnerMin = Math.max(rInnerMax - innerThickness, 0);
 
       ringsConfig = [
-        { id: 'outerRing',  rOuter: rOuterMax,  rInner: rOuterMin,  color: CONFIG.colors.outer,  arrowType: 'inward',  type: 'dots' },
-        { id: 'middleRing', rOuter: rMiddleMax, rInner: rMiddleMin, color: CONFIG.colors.middle, arrowType: null,    type: 'middleLabels' },
-        { id: 'innerRing',  rOuter: rInnerMax,  rInner: rInnerMin,  color: CONFIG.colors.inner,  arrowType: 'outward', type: 'innerLabels' }
+        { id: 'outerRing',  rOuter: rOuterMax,  rInner: rOuterMin,  color: CONFIG.colors.outer,  segmentColors: CONFIG.colors.outerSegments,  arrowType: 'inward',  type: 'dots' },
+        { id: 'middleRing', rOuter: rMiddleMax, rInner: rMiddleMin, color: CONFIG.colors.middle, segmentColors: CONFIG.colors.middleSegments, arrowType: null,    type: 'middleLabels' },
+        { id: 'innerRing',  rOuter: rInnerMax,  rInner: rInnerMin,  color: CONFIG.colors.inner,  segmentColors: CONFIG.colors.innerSegments,  arrowType: 'outward', type: 'innerLabels' }
       ];
 
       renderRings();
@@ -522,10 +542,16 @@
           const endAngle = startAngle + DEG_PER_SEGMENT;
           const midAngle = (startAngle + endAngle) / 2;
 
+          // Determine segment color from array if configured, otherwise fallback to uniform ring color
+          let segFillColor = cfg.color;
+          if (Array.isArray(cfg.segmentColors) && cfg.segmentColors[i]) {
+            segFillColor = cfg.segmentColors[i];
+          }
+
           const path = document.createElementNS(SVG_NS, 'path');
           path.setAttribute('d', createSegmentPath(cfg.rInner, cfg.rOuter, startAngle, endAngle));
           path.setAttribute('class', 'segment');
-          path.setAttribute('fill', cfg.color);
+          path.setAttribute('fill', segFillColor);
           path.setAttribute('stroke', CONFIG.lineColor || '#333333');
           segmentLayer.appendChild(path);
 
