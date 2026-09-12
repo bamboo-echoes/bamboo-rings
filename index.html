@@ -564,7 +564,7 @@
             const labelText = CONFIG.middleRingLabels[i % CONFIG.middleRingLabels.length];
             const ratio = CONFIG.fontSizes ? CONFIG.fontSizes.middleRatio : 0.35;
             const textColor = CONFIG.labelColors ? (CONFIG.labelColors.middle || CONFIG.labelColors.default) : '#111111';
-            const labelGroup = renderLabelForSegment(cfg.rInner, cfg.rOuter, midAngle, labelText, ratio, 0.5, textColor, currentRot);
+            const labelGroup = renderLabelForSegment(cfg.rInner, cfg.rOuter, midAngle, labelText, ratio, 0.7, textColor, currentRot);
             overlayLayer.appendChild(labelGroup);
           }
 
