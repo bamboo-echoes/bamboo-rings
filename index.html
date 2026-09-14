@@ -132,7 +132,7 @@
         
         // Default single ring colors (used as fallbacks if segment array isn't provided)
         outer: '#FFef00',      
-        middle: '#009900',     
+        middle: '#009900',    
         inner: '#0088FF',
 
         // Configure individual colors for each segment (12 segments per ring).
@@ -221,8 +221,8 @@ This tool consists of three rotatable concentric rings: inner, middle, and outer
 
 This music wheel is provided for Chinese flute students and teachers to quickly understand how different keys and fingerings correspond to the resulting played keys on various flutes of different keys.
 `,
-	  
-	  outerDotRadius: 4,
+    
+    outerDotRadius: 4,
 
       // Exactly 24 dot rows (2 rows x 12 segments)
       // 1.0 = Solid, 0.5 = Half-solid, 0.0 = Outline
@@ -234,7 +234,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
         // Segment 2
         [1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 0],
         // Segment 3
-        [1, 0, 1, 1, 1, 1], [1, 0, 1, 0, 0, 0],		
+        [1, 0, 1, 1, 1, 1], [1, 0, 1, 0, 0, 0],   
         // Segment 4
         [1, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0],
         // Segment 5
@@ -467,10 +467,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       if (CONFIG.uprightLabels) {
         textRot = -currentRingRotation;
       } else {
-        textRot = midAngleDeg;
-        if (textRot > 90 && textRot < 270) {
-          textRot += 180;
-        }
+        textRot = midAngleDeg; // Bottom of alphabets faces the center of the ring
       }
 
       foreignObject.setAttribute('transform', `rotate(${textRot}, ${cx}, ${cy})`);
@@ -564,7 +561,6 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
           const endAngle = startAngle + DEG_PER_SEGMENT;
           const midAngle = (startAngle + endAngle) / 2;
 
-          // Determine segment color from array if configured, otherwise fallback to uniform ring color
           let segFillColor = cfg.color;
           if (Array.isArray(cfg.segmentColors) && cfg.segmentColors[i]) {
             segFillColor = cfg.segmentColors[i];
@@ -630,14 +626,17 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       ringState.rotation = angle;
       ringState.element.setAttribute('transform', `rotate(${angle}, ${center.x}, ${center.y})`);
 
-      if (CONFIG.uprightLabels) {
-        const labels = ringState.element.querySelectorAll('foreignObject');
-        labels.forEach(fo => {
-          const cx = fo.getAttribute('data-cx');
-          const cy = fo.getAttribute('data-cy');
+      const labels = ringState.element.querySelectorAll('foreignObject');
+      labels.forEach(fo => {
+        const cx = fo.getAttribute('data-cx');
+        const cy = fo.getAttribute('data-cy');
+        if (CONFIG.uprightLabels) {
           fo.setAttribute('transform', `rotate(${-angle}, ${cx}, ${cy})`);
-        });
-      }
+        } else {
+          const midAngle = parseFloat(fo.getAttribute('data-mid-angle'));
+          fo.setAttribute('transform', `rotate(${midAngle}, ${cx}, ${cy})`);
+        }
+      });
     }
 
     function snapToSegment(ringState) {
@@ -685,7 +684,6 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       const dy = clientY - (rect.top + center.y);
       const clickDist = Math.sqrt(dx * dx + dy * dy);
 
-      // Verify click radial distance matches targeted ring
       let targetRingId = ringId;
       for (const cfg of ringsConfig) {
         if (clickDist >= cfg.rInner && clickDist <= cfg.rOuter) {
