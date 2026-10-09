@@ -584,7 +584,7 @@
           sequenceHolesGap: '5px'
         },
         fonts: {
-          ui: "'Segoe UI', system-ui, sans-serif",
+          ui: "'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei', system-ui, sans-serif",
           display: "'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei', system-ui, sans-serif"
         },
         effects: {
@@ -821,6 +821,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       if (!footer) return;
 
       footer.style.color = CONFIG.markdownColor;
+      footer.style.fontFamily = CONFIG.interface.fonts.ui;
 
       if (typeof marked !== 'undefined' && marked.parse) {
         footer.innerHTML = marked.parse(CONFIG.bottomMarkdown || '');
