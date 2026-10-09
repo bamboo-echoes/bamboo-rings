@@ -591,8 +591,8 @@
           playbackDotInactiveOpacity: 0.18
         },
         labels: {
-          pageTitle: '笛子 (Dizi) 指法轮盘',
-          pageDescription: 'Explore flute keys, fingerings, and a two-octave scale.',
+          pageTitle: '笛子 (Dizi) 乐音轮盘',
+          pageDescription: 'Explore the fingering chart for Chinese flutes (Dizi) in various keys and scales.',
           keyControlsAria: 'Dial key settings',
           nativeKey: "Your flute's native key",
           targetKey: 'Key you want to play',
@@ -692,7 +692,7 @@
       },
 
       // Configurable line stroke color for segment borders
-      lineColor: '#000000',
+      lineColor: '#33333333',
 
       // Configurable circle dot colors
       circleColors: {
@@ -716,38 +716,51 @@
       // Configurable Markdown Content at the bottom of the page
       markdownColor: '#E0E0E0',
       bottomMarkdown: `
-# 中文说明
 ___
-## 工具说明
-该工具由三个可以转动的圆轮组成，分内，中和外
-1) 内圆是阶名，是do re mi fa so la ti ,用简写成1234567。
-2) 中圆是音名，是CDEFGAB,作为笛子吹出的调性。
-3) 外圆是笛子的指法，从外为笛子的第一发音孔，白的为没按孔，黑的为按孔，半黑为按半孔。
-4) 一般笛子的第三孔都有注明音名，意思是指示开一二三孔是什么音名。
-5) 如果你用的笛子是注明D，你就必须把中圆的D对准外圆的指法开孔的一二三孔，如果把内圆的1对准中圆的D,吹出的是D调，如果把内圆的5对准中圆的D时就吹成G调。
-## 使用规则
-1) 音阶的音名不能重复，可能会用到同音异名，如升E和F。
-2) 当您决定第三孔是作什么阶名后，小圆的1和大剑头对准中圆的音名就吹的是那个调。
-3) 在外圆的笛子指法里，向右顺时钟走是向高音，反时钟走上向低音，每一格是代表一个半音，两音如果相靠就表示相隔半音。
-4) 在外圆的笛子指法中的每格，遍向低方向的是平吹，遍向高音的是超吹。
+# 中文说明
+## 工具概述
+该工具由 3 个同心圆环组成，分别命名为“外环”、“中环”和“内环”。
+
+### 操作指南与交互说明
+1) **选择键位（顶部面板控制）**：
+   - **你的笛子基准调 (Your flute's native key)**：点击对应的音名按钮，用来设置你当前使用的笛子实际基准调。这会自动将外环旋转并对齐到正确的指法位置。
+   - **你想演奏的调 (Key you want to play)**：点击对应的音名按钮，用来选择你计划演奏的目标音乐调性。这会自动将内环旋转并对齐到对应的音阶位置。
+   - 选中的选项按钮会显示高亮边框和背景色，界面上的轮盘会随之自动旋转完成对齐。
+2) **播放与视听同步 (Scale Player)**：
+   - **播放/停止按钮 (Play Scale)**：点击播放器右侧的圆形播放按钮，即可开始自动播放两个八度的音阶序列音频。播放时，图标会切换为停止方块。
+   - **高亮指法指示**：在音阶自动播放过程中，外环上会动态出现一个带有虚线边界的扇形高亮区域，用来实时指示当前音符所在的扇区与指法圆点。同时，下方的音阶序列步骤与指法图也会同步高亮。
+   - **调节播放速度 (Playback Speed)**：点击播放器下方的速度选项按钮（支持 0.1x 至 2x ），可随时减慢或加快音频的播放节奏与视听进度。
+3) **手动旋转轮盘（灵活调整）**：
+   - 如果需要手动微调或自由探索，你可以直接用鼠标点击并拖动（或在触摸屏上滑动）三个同心圆环（外环、中环、内环）中的任意一个进行独立旋转。
+   - 当松开鼠标或手指后，轮盘会自动带有惯性并平滑“吸附”对齐到最接近的扇形格子上。
+
+### 设置步骤示例
+1) 如果你的笛子是 C 调，只需在顶部面板点击选择 **C** 作为你的笛子基准调，外环便会自动对齐。
+2) 如果你打算演奏 D 大调的曲子，在顶部面板点击选择 **D** 作为你想演奏的调，内环便会自动对齐。
 
 在我的乐音轮盘中提供给爱好笛子的学生和老师，能快速的了解各种调性的笛子用不同的指法辨别出吹出的调性。
+___
 
 # English Instructions
-___
-## Tool Description
-This tool consists of three rotatable concentric rings: inner, middle, and outer.
-1) The inner ring represents scale degrees (do, re, mi, fa, so, la, ti), abbreviated as 1, 2, 3, 4, 5, 6, 7.
-2) The middle ring represents pitch names (C, D, E, F, G, A, B), serving as the key of the flute.
-3) The outer ring represents the flute fingering chart. Moving from the outside inward, the first fingerhole is shown: white indicates an open hole, black indicates a closed hole, and half-black indicates a half-holed note.
-4) Generally, the third hole of a flute is marked with a pitch name, which indicates the pitch produced when opening the first, second, and third holes.
-5) If your flute is marked with "D", you must align the "D" on the middle ring with the fingering for the first three holes on the outer ring. If you align "1" on the inner ring with "D" on the middle ring, you play in the key of D; if you align "5" on the inner ring with "D" on the middle ring, you play in the key of G.
+## Tool Overview
+The tool consists of 3 concentric rings: the **Outer Ring**, **Middle Ring**, and **Inner Ring**.
 
-## Rules of Use
-1) Scale pitch names cannot be repeated; enharmonic equivalents (such as E-sharp and F) may be used.
-2) Once you determine which scale degree the third hole represents, aligning the "1" on the small (inner) ring and the major arrow with the pitch name on the middle ring will give you that key.
-3) In the outer ring's flute fingering, moving clockwise to the right shifts toward higher pitches, while moving counter-clockwise shifts toward lower pitches. Each step represents a semitone; adjacent positions indicate a semitone interval.
-4) Within each step of the outer ring's flute fingering, positions leaning toward the lower direction indicate normal blowing (pingchui), while positions leaning toward the higher pitch indicate overblowing (chaochui).
+### Interface Controls & Actions Guide
+1) **Key Selection (Top Control Panel)**:
+   - **Your flute's native key**: Click the corresponding pitch button to set the actual baseline key of your flute. This action automatically rotates and aligns the outer ring to the correct physical fingering sector.
+   - **Key you want to play**: Click the corresponding pitch button to choose your target musical key. This action automatically rotates and aligns the inner ring to the matching scale position.
+   - Selected option buttons will highlight with a distinct border and background tint, while the wheel rings instantly rotate into alignment.
+2) **Audio & Visual Scale Player**:
+   - **Play/Stop Button**: Click the round play button on the right side of the scale player to listen to the automated two-octave scale audio sequence. During playback, the icon toggles to a stop square.
+   - **Live Fingering Highlight**: As the scale plays, a dotted-stroke sector highlight dynamically moves across the outer ring to point out the active note and its drill-down dot rows. The sequence steps and finger-hole diagrams below update simultaneously in real time.
+   - **Playback Speed**: Click any of the speed buttons (ranging from 0.1x to 2x) located below the player header to slow down or speed up the audio rhythm and visual progression.
+3) **Manual Ring Rotation (Flexible Adjustment)**:
+   - For custom exploration or manual adjustments, you can directly click and drag (or touch and drag) any of the three concentric rings (Outer, Middle, or Inner) to spin them independently.
+   - Upon release, the wheel applies smooth inertia and automatically snaps into place at the nearest grid segment.
+
+### Setup Example
+1) If your flute is in C, click **C** under your flute's native key in the top panel, and the outer ring will align automatically.
+2) If the piece you are playing is in D major, click **D** under the target key panel, and the inner ring will align automatically.
 
 This music wheel is provided for Chinese flute students and teachers to quickly understand how different keys and fingerings correspond to the resulting played keys on various flutes of different keys.
 `,
