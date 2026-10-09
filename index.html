@@ -890,7 +890,7 @@ The tool consists of 3 concentric rings: the **Outer Ring**, **Middle Ring**, an
 This music wheel is provided for Chinese flute students and teachers to quickly understand how different keys and fingerings correspond to the resulting played keys on various flutes of different keys.
 `,
     
-      outerDotRadius: 4,
+      outerDotRadiusRatio: 0.0135,
       outerDotColumns: [
         [1, 1, 1, 0, 0, 0], [1, 1, 1, 0, 0, 0],
         [1, 1, 0, 1, 1, 1], [1, 1, 0, 1, 0, 0],
@@ -1078,7 +1078,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       const g = document.createElementNS(SVG_NS, 'g');
 
       const ringWidth = rOuter - rInner;
-      const dotRadius = CONFIG.outerDotRadius ? CONFIG.outerDotRadius : Math.max(ringWidth * 0.032, 2.5);
+      const dotRadius = rOuter * (CONFIG.outerDotRadiusRatio || 0.0135);
       
       const leftAngle = startAngleDeg + 3.5;
       const rightAngle = endAngleDeg - 3.5;
