@@ -245,7 +245,7 @@
     }
     .key-options {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(var(--size-option-min-width), 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: var(--size-option-gap);
       padding: var(--size-options-padding);
     }
@@ -445,7 +445,7 @@
     }
     .scale-sequence-octave-steps {
       display: grid;
-      grid-template-columns: repeat(var(--sequence-degree-count), minmax(var(--size-sequence-step-min-width), 1fr));
+      grid-template-columns: repeat(var(--sequence-degree-count), minmax(0, 1fr));
       gap: var(--size-sequence-step-gap);
       overflow-x: auto;
     }
@@ -476,6 +476,8 @@
     }
     .scale-sequence-holes {
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
       gap: var(--size-sequence-hole-gap);
       margin-top: var(--size-sequence-holes-gap);
@@ -667,11 +669,11 @@
           labelFontSize: '14px',
           optionGap: '5px',
           optionsPadding: '2px 1px 8px',
-          optionMinWidth: '42px',
-          optionHeight: '38px',
-          optionPadding: '5px 3px',
+          optionMinWidth: '36px',
+          optionHeight: '36px',
+          optionPadding: '4px 2px',
           controlRadius: '12px',
-          buttonFontSize: '13px',
+          buttonFontSize: '12px',
           secondaryLabelGap: '2px',
           secondaryLabelFontSize: '9px',
           secondaryLabelLineHeight: '1',
@@ -686,8 +688,8 @@
           playButtonWidth: '52px',
           playButtonPadding: '0',
           playButtonIconSize: '22px',
-          holeGap: '8px',
-          holeDiameter: '16px',
+          holeGap: '6px',
+          holeDiameter: '14px',
           holeBorderWidth: '1px',
           playbackFingeringGap: '4px',
           playbackFingeringNoteFontSize: '14px',
@@ -701,19 +703,19 @@
           speedOptionGap: '4px',
           speedOptionPadding: '6px 2px',
           speedOptionFontSize: '11px',
-          sequenceStepMinWidth: '64px',
+          sequenceStepMinWidth: '40px',
           sequenceOctaveGap: '10px',
           sequenceOctaveHeadingGap: '4px',
-          sequenceStepGap: '5px',
-          sequenceStepPadding: '6px 2px',
+          sequenceStepGap: '3px',
+          sequenceStepPadding: '4px 2px',
           sequenceStepRadius: '4px',
           sequenceHeadingGap: '7px',
           sequenceNoteFontSize: '11px',
           sequenceDegreeGap: '2px',
           sequenceDegreeFontSize: '9px',
-          sequenceHoleGap: '5px',
-          sequenceHoleDiameter: '12px',
-          sequenceHolesGap: '5px'
+          sequenceHoleGap: '4px',
+          sequenceHoleDiameter: '10px',
+          sequenceHolesGap: '4px'
         },
         fonts: {
           ui: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif",
