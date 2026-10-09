@@ -1673,12 +1673,15 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
           circle.setAttribute('fill', circle.getAttribute('data-playback-highlight-fill'));
         }
       });
-      const inactiveRowIndex = activePlaybackDotRow % 2 === 0
-        ? activePlaybackDotRow + 1
-        : activePlaybackDotRow - 1;
-      outerRing.querySelectorAll(`[data-dot-row-index="${inactiveRowIndex}"]`).forEach((circle) => {
-        circle.classList.add('playback-dot-inactive');
+      
+      // Fade out ALL circles that don't belong to the active dot row during playback
+      outerRing.querySelectorAll('circle').forEach((circle) => {
+        const rowIndex = Number(circle.getAttribute('data-dot-row-index'));
+        if (rowIndex !== activePlaybackDotRow) {
+          circle.classList.add('playback-dot-inactive');
+        }
       });
+
       const outerConfig = ringsConfig.find((cfg) => cfg.id === 'outerRing');
       const startAngle = activePlaybackSector * DEG_PER_SEGMENT;
       highlight.setAttribute('d', createSegmentPath(
