@@ -22,7 +22,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      touch-action: pan-y; /* Allows vertical scrolling for the page */
+      touch-action: pan-y;
     }
     
     .surface-panel {
@@ -40,6 +40,14 @@
       margin: var(--size-page-intro-margin);
       color: var(--ui-player-text);
       font-family: var(--font-ui);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .page-intro-text {
+      flex: 1;
+      min-width: 0;
     }
     #page-title {
       font-family: var(--font-display);
@@ -54,19 +62,139 @@
       line-height: 1.45;
     }
 
+    /* Instructions Toggle Button aligned with title */
+    #instructions-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid var(--ui-control-border);
+      border-radius: var(--size-control-radius);
+      background: var(--ui-control-background);
+      color: var(--ui-controls-text);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #instructions-toggle-btn:hover {
+      border-color: var(--ui-control-selected-border);
+      background: var(--ui-control-selected-background);
+      color: var(--ui-control-selected-text);
+    }
+
+    /* Slide-out Sidebar from Right & Backdrop */
+    #sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+    #sidebar-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #instructions-sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 75vw;
+      background: var(--ui-player-background);
+      color: var(--ui-player-text);
+      box-shadow: -6px 0 30px rgba(0, 0, 0, 0.6);
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-left: 1px solid var(--ui-player-border);
+    }
+    #instructions-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--ui-player-border);
+    }
+    .sidebar-title {
+      font-size: 17px;
+      font-weight: 700;
+      font-family: var(--font-display);
+    }
+    #sidebar-close-btn {
+      background: none;
+      border: 0;
+      color: var(--ui-player-text);
+      font-size: 24px;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+    }
+    #sidebar-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      font-family: var(--font-ui);
+      line-height: 1.6;
+      user-select: text;
+    }
+    .sidebar-content h1, .sidebar-content h2, .sidebar-content h3 {
+      margin-top: 1.2rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid var(--ui-footer-rule);
+      padding-bottom: 0.3rem;
+    }
+    .sidebar-content p {
+      margin-bottom: 1rem;
+    }
+    .sidebar-content ul, .sidebar-content ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .sidebar-content code {
+      background: var(--ui-footer-code-background);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .sidebar-content a {
+      color: var(--ui-footer-link);
+    }
+
     /* Container strictly wrapping the SVG Wheel at the top */
     #wheel-container {
       width: 100%;
       max-width: 100%;
       display: flex;
-      align-items: flex-start; /* Positions wheel at top, not centered */
+      align-items: flex-start;
       justify-content: center;
       flex-shrink: 0;
     }
     
     svg {
       width: 100%;
-      max-width: 600px; /* Limits max diameter on larger screens */
+      max-width: 600px;
       height: auto;
       aspect-ratio: 1;
       max-height: 600px;
@@ -74,7 +202,7 @@
     }
     .ring {
       cursor: grab;
-      touch-action: none; /* Only block native scroll when user drags a wheel ring directly */
+      touch-action: none;
     }
     .ring:active {
       cursor: grabbing;
@@ -375,7 +503,6 @@
       background: var(--ui-progress-active);
     }
     
-    /* HTML Label Container Styling */
     .html-label-container {
       width: 100%;
       height: 100%;
@@ -392,45 +519,18 @@
       white-space: nowrap;
       user-select: none;
     }
-
-    /* Markdown Footer Styling */
-    #markdown-footer {
-      width: 100%;
-      max-width: 800px;
-      padding: 2rem 1.5rem 4rem 1.5rem;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      line-height: 1.6;
-      user-select: text; /* Allows text highlighting in footer */
-    }
-    #markdown-footer h1, #markdown-footer h2, #markdown-footer h3 {
-      margin-top: 1rem;
-      margin-bottom: 0.5rem;
-      border-bottom: 1px solid var(--ui-footer-rule);
-      padding-bottom: 0.3rem;
-    }
-    #markdown-footer p {
-      margin-bottom: 1rem;
-    }
-    #markdown-footer ul, #markdown-footer ol {
-      margin-left: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    #markdown-footer code {
-      background: var(--ui-footer-code-background);
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      font-family: monospace;
-    }
-    #markdown-footer a {
-      color: var(--ui-footer-link);
-    }
   </style>
 </head>
 <body>
 
   <header id="page-intro">
-    <h1 id="page-title"></h1>
-    <p id="page-description"></p>
+    <div class="page-intro-text">
+      <h1 id="page-title"></h1>
+      <p id="page-description"></p>
+    </div>
+    <button id="instructions-toggle-btn" type="button">
+      <span>📖</span> <span id="toggle-btn-text">使用说明 / Instructions</span>
+    </button>
   </header>
 
   <section class="surface-panel">
@@ -472,14 +572,20 @@
     <div id="playback-fingers"></div>
   </section>
 
-  <div id="markdown-footer"></div>
+  <!-- Slide-out Sidebar from Right & Backdrop -->
+  <div id="sidebar-backdrop"></div>
+  <aside id="instructions-sidebar" aria-label="Instructions sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">使用说明 / Instructions</span>
+      <button id="sidebar-close-btn" type="button" aria-label="Close instructions">&times;</button>
+    </div>
+    <div id="sidebar-content" class="sidebar-content"></div>
+  </aside>
 
   <script>
     const CONFIG = {
-      // Toggle to force ring labels to always remain visually upright
       uprightLabels: false,
 
-      // Tweak the interface palette, text, sizing, motion, music, and playback here.
       interface: {
         colors: {
           arrowFill: '#ffffff',
@@ -546,7 +652,7 @@
           playerWidth: 'min(100% - 24px, 800px)',
           playerMargin: '12px 0 8px',
           playerPadding: '14px 16px',
-          playerRadius: '8px',
+          playerRadius: '24px',
           playerHeaderGap: '12px',
           statusFontSize: '17px',
           detailGap: '4px',
@@ -657,16 +763,10 @@
       },
 
       colors: {
-        // background: '#202724', // Main canvas background
-        background: '#111111', // Main canvas background
-        
-        // Default single ring colors (used as fallbacks if segment array isn't provided)
+        background: '#111111',
         outer: '#AFC6B6',
         middle: '#D8D0BE',
         inner: '#9FB8C9',
-
-        // Configure individual colors for each segment (12 segments per ring).
-        // Set to null or remove a ring's array to use its uniform fallback color above.
         outerSegments: [
           '#AFC6B6', '#AFC6B6', '#AFC6B6', '#AFC6B6',
           '#AFC6B6', '#AFC6B6', '#AFC6B6', '#AFC6B6',
@@ -684,27 +784,23 @@
         ]
       },
 
-      // Configurable label text colors
       labelColors: {
-        default: '#111111',    // Fallback label color
-        middle: '#111111',     // Middle ring label text color
-        inner: '#111111'       // Inner ring label text color
+        default: '#111111',
+        middle: '#111111',
+        inner: '#111111'
       },
 
-      // Configurable line stroke color for segment borders
       lineColor: '#33333333',
 
-      // Configurable circle dot colors
       circleColors: {
-        fill: '#333333',            // Solid fill color & outline color for half dots
-        outlineStroke: '#333333',   // Stroke color for empty/outlined dots
-        halfGradientSecondary: 'transparent' // Secondary stop color for half dots
+        fill: '#333333',
+        outlineStroke: '#333333',
+        halfGradientSecondary: 'transparent'
       },
 
-      // Configurable font sizes as a fraction of ring width
       fontSizes: {
-        middleRatio: 0.3, // Font size relative to middle ring width
-        innerRatio: 0.3   // Font size relative to inner ring width
+        middleRatio: 0.3,
+        innerRatio: 0.3
       },
 
       thicknessWeights: {
@@ -713,7 +809,6 @@
         inner: 0.8
       },
 
-      // Configurable Markdown Content at the bottom of the page
       markdownColor: '#E0E0E0',
       bottomMarkdown: `
 ___
@@ -765,34 +860,19 @@ The tool consists of 3 concentric rings: the **Outer Ring**, **Middle Ring**, an
 This music wheel is provided for Chinese flute students and teachers to quickly understand how different keys and fingerings correspond to the resulting played keys on various flutes of different keys.
 `,
     
-    outerDotRadius: 4,
-
-      // Exactly 24 dot rows (2 rows x 12 segments)
-      // 1.0 = Solid, 0.5 = Half-solid, 0.0 = Outline
+      outerDotRadius: 4,
       outerDotColumns: [
-        // Segment 0
         [1, 1, 1, 0, 0, 0], [1, 1, 1, 0, 0, 0],
-        // Segment 1
         [1, 1, 0, 1, 1, 1], [1, 1, 0, 1, 0, 0],
-        // Segment 2
         [1, 1, 0, 0, 0, 0], [1, 1, 0, 0, 0, 0],
-        // Segment 3
         [1, 0, 1, 1, 1, 1], [1, 0, 1, 0, 0, 0],   
-        // Segment 4
         [1, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0],
-        // Segment 5
         [0, 1, 0, 1, 1, 1], [0, 1, 0, 1, 1, 1],
-        // Segment 6
         [0, 0, 0, 0, 0, 1], [0, 0, 0, 1, 0, 0],
-        // Segment 7
         [1, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1],
-        // Segment 8
         [1, 1, 1, 1, 1, 0.5], [1, 1, 1, 1, 1, 0.5],
-        // Segment 9
         [1, 1, 1, 1, 1, 0], [1, 1, 1, 1, 1, 0],
-        // Segment 10
         [1, 1, 1, 1, 0.5, 0], [1, 1, 1, 1, 0.5, 0],
-        // Segment 11
         [1, 1, 1, 1, 0, 0], [1, 1, 1, 1, 0, 0]
       ],
 
@@ -829,18 +909,42 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     let ringStates = {};
     let ringsConfig = [];
 
-    function renderMarkdownFooter() {
-      const footer = document.getElementById('markdown-footer');
-      if (!footer) return;
+    function renderSidebarMarkdown() {
+      const container = document.getElementById('sidebar-content');
+      if (!container) return;
 
-      footer.style.color = CONFIG.markdownColor;
-      footer.style.fontFamily = CONFIG.interface.fonts.ui;
+      container.style.color = CONFIG.markdownColor;
 
       if (typeof marked !== 'undefined' && marked.parse) {
-        footer.innerHTML = marked.parse(CONFIG.bottomMarkdown || '');
+        container.innerHTML = marked.parse(CONFIG.bottomMarkdown || '');
       } else {
-        footer.innerHTML = (CONFIG.bottomMarkdown || '').replace(/\n/g, '<br/>');
+        container.innerHTML = (CONFIG.bottomMarkdown || '').replace(/\n/g, '<br/>');
       }
+    }
+
+    function initSidebar() {
+      const toggleBtn = document.getElementById('instructions-toggle-btn');
+      const closeBtn = document.getElementById('sidebar-close-btn');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      const sidebar = document.getElementById('instructions-sidebar');
+
+      function openSidebar() {
+        sidebar.classList.add('open');
+        backdrop.classList.add('open');
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('open');
+      }
+
+      toggleBtn.addEventListener('click', openSidebar);
+      closeBtn.addEventListener('click', closeSidebar);
+      backdrop.addEventListener('click', closeSidebar);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeSidebar();
+      });
     }
 
     function updateBackground() {
@@ -1084,7 +1188,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       if (CONFIG.uprightLabels) {
         textRot = -currentRingRotation;
       } else {
-        textRot = midAngleDeg; // Bottom of alphabets faces the center of the ring
+        textRot = midAngleDeg;
       }
 
       foreignObject.setAttribute('transform', `rotate(${textRot}, ${cx}, ${cy})`);
@@ -1172,16 +1276,14 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
 
         ringGroup.appendChild(segmentLayer);
 
-        // Move playbackSector here so it renders BEFORE the dots/overlay layer
         if (cfg.id === 'outerRing') {
           const playbackSector = document.createElementNS(SVG_NS, 'path');
           playbackSector.setAttribute('class', 'playback-sector');
           playbackSector.setAttribute('fill', CONFIG.interface.colors.playbackSectorFill);
           playbackSector.setAttribute('stroke', CONFIG.interface.colors.playbackSectorStroke);
           playbackSector.setAttribute('stroke-width', CONFIG.interface.sizes.playbackSectorStrokeWidth);
-          // Add dotted/dashed stroke styling here
-          playbackSector.setAttribute('stroke-dasharray', '1, 8'); // Adjust numbers to change dot spacing/size
-          playbackSector.setAttribute('stroke-linecap', 'square');   // Makes the dashes rounded like dots
+          playbackSector.setAttribute('stroke-dasharray', '1, 8');
+          playbackSector.setAttribute('stroke-linecap', 'square');
           playbackSector.style.pointerEvents = 'none';
           playbackSector.style.display = 'none';
           ringGroup.appendChild(playbackSector);
@@ -1808,7 +1910,8 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
 
     window.addEventListener('resize', updateDimensions);
     applyInterfaceConfig();
-    renderMarkdownFooter();
+    renderSidebarMarkdown();
+    initSidebar();
     updateDimensions();
     updateKeyOptions();
     updateKeyRingRotations();
