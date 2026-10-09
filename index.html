@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>12-Segment Music Wheel - HTML Labels & Markdown</title>
+  <title></title>
   <!-- Light Marked parser for client-side Markdown rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
@@ -18,28 +18,57 @@
       min-height: 100vh;
       overflow-x: hidden;
       overflow-y: auto;
-      background: #111111;
+      background: var(--page-background);
       display: flex;
       flex-direction: column;
       align-items: center;
       touch-action: pan-y; /* Allows vertical scrolling for the page */
     }
     
+    .surface-panel {
+      width: var(--size-player-width);
+      margin: var(--size-player-margin);
+      padding: var(--size-player-padding);
+      border: 1px solid var(--ui-player-border);
+      border-radius: var(--size-player-radius);
+      background: var(--ui-player-background);
+      color: var(--ui-player-text);
+      font-family: var(--font-ui);
+    }
+    #page-intro {
+      width: var(--size-player-width);
+      margin: var(--size-page-intro-margin);
+      color: var(--ui-player-text);
+      font-family: var(--font-ui);
+    }
+    #page-title {
+      font-family: var(--font-display);
+      font-size: var(--size-page-title-font-size);
+      font-weight: 700;
+      line-height: 1.15;
+    }
+    #page-description {
+      margin-top: var(--size-page-description-gap);
+      color: var(--ui-player-secondary-text);
+      font-size: var(--size-page-description-font-size);
+      line-height: 1.45;
+    }
+
     /* Container strictly wrapping the SVG Wheel at the top */
     #wheel-container {
-      width: 100vw;
+      width: 100%;
       max-width: 100%;
       display: flex;
       align-items: flex-start; /* Positions wheel at top, not centered */
       justify-content: center;
       flex-shrink: 0;
-      margin-top: 10px;
     }
     
     svg {
-      width: 100vw;
+      width: 100%;
       max-width: 600px; /* Limits max diameter on larger screens */
-      height: 100vw;
+      height: auto;
+      aspect-ratio: 1;
       max-height: 600px;
       display: block;
     }
@@ -54,58 +83,296 @@
       stroke-width: 2;
     }
     .arrow {
-      fill: #ffffff;
-      stroke: #000000;
+      fill: var(--ui-arrow-fill);
+      stroke: var(--ui-arrow-stroke);
       stroke-width: 3;
       stroke-linejoin: round;
       pointer-events: none;
-      filter: drop-shadow(0px 0px 3px rgba(0,0,0,0.8));
+      filter: drop-shadow(var(--ui-arrow-shadow));
+    }
+    .playback-dot-active {
+      stroke: var(--ui-playback-dot-stroke);
+      stroke-width: var(--size-playback-dot-stroke-width);
+    }
+    .playback-dot-active[data-dot-value="1"] {
+      fill: var(--ui-playback-dot-fill);
+    }
+    .playback-dot-inactive {
+      opacity: var(--effect-playback-dot-inactive-opacity);
     }
 
     #key-controls {
-      width: min(100%, 600px);
-      padding: 12px 16px 4px;
-      color: #f2f1e8;
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      width: 100%;
+      padding: 0;
+      color: var(--ui-player-text);
+      font-family: var(--font-ui);
     }
     .key-control + .key-control {
-      margin-top: 12px;
+      margin-top: var(--size-control-gap);
     }
     .key-control h2 {
-      margin-bottom: 7px;
-      font-size: 14px;
+      margin-bottom: var(--size-label-gap);
+      font-size: var(--size-label-font-size);
       font-weight: 600;
     }
     .key-options {
-      display: flex;
-      gap: 5px;
-      overflow-x: auto;
-      padding: 2px 1px 8px;
-      scrollbar-width: thin;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(var(--size-option-min-width), 1fr));
+      gap: var(--size-option-gap);
+      padding: var(--size-options-padding);
     }
     .key-option {
-      flex: 0 0 42px;
-      min-height: 38px;
-      padding: 5px 3px;
-      border: 1px solid #686868;
-      border-radius: 5px;
-      background: #252525;
-      color: #f2f1e8;
+      width: 100%;
+      min-width: 0;
+      min-height: var(--size-option-height);
+      padding: var(--size-option-padding);
+      border: 1px solid var(--ui-control-border);
+      border-radius: var(--size-control-radius);
+      background: var(--ui-control-background);
+      color: var(--ui-controls-text);
       font: inherit;
-      font-size: 13px;
+      font-size: var(--size-button-font-size);
+      line-height: 1.1;
+      overflow-wrap: anywhere;
       cursor: pointer;
     }
-    .key-option[aria-pressed="true"] {
-      border-color: #ffef00;
-      background: #ffef00;
-      color: #111;
+    .key-option[data-native-key][aria-pressed="true"] {
+      border-color: var(--ui-native-key-selected-border);
+      background: var(--ui-native-key-selected-background);
+      color: var(--ui-control-selected-text);
+      font-weight: 700;
+    }
+    .key-option[data-target-key][aria-pressed="true"] {
+      border-color: var(--ui-target-key-selected-border);
+      background: var(--ui-target-key-selected-background);
+      color: var(--ui-control-selected-text);
       font-weight: 700;
     }
     .key-option small {
       display: block;
-      margin-top: 2px;
-      font-size: 9px;
-      line-height: 1;
+      margin-top: var(--size-secondary-label-gap);
+      font-size: var(--size-secondary-label-font-size);
+      line-height: var(--size-secondary-label-line-height);
+    }
+
+    #scale-player {
+      display: block;
+    }
+    #scale-player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--size-player-header-gap);
+    }
+    #scale-player-header > div:first-child {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    #scale-player-status {
+      font-family: var(--font-display);
+      font-size: var(--size-status-font-size);
+    }
+    #scale-player-detail {
+      margin-top: var(--size-detail-gap);
+      color: var(--ui-player-secondary-text);
+      font-size: var(--size-detail-font-size);
+    }
+    #play-scale-button {
+      display: grid;
+      place-items: center;
+      width: var(--size-play-button-width);
+      min-width: var(--size-play-button-width);
+      height: var(--size-play-button-width);
+      padding: var(--size-play-button-padding);
+      border: 0;
+      border-radius: 50%;
+      background: var(--ui-play-button-background);
+      color: var(--ui-play-button-text);
+      font: inherit;
+      font-size: var(--size-button-font-size);
+      font-weight: 700;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    #play-scale-button[aria-pressed="true"] {
+      background: var(--ui-play-button-active-background);
+      color: var(--ui-play-button-active-text);
+    }
+    .play-scale-icon {
+      width: var(--size-play-button-icon-size);
+      height: var(--size-play-button-icon-size);
+    }
+    #play-scale-button:disabled {
+      cursor: default;
+      opacity: 0.7;
+    }
+    #playback-speed-row {
+      display: flex;
+      flex-direction: column;
+      gap: var(--size-speed-control-gap);
+      margin-top: var(--size-player-row-gap);
+    }
+    #playback-speed-label {
+      color: var(--ui-player-secondary-text);
+      font-size: var(--size-detail-font-size);
+    }
+    #playback-speed-options {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: var(--size-speed-option-gap);
+    }
+    .speed-option {
+      min-width: 0;
+      padding: var(--size-speed-option-padding);
+      border: 1px solid var(--ui-control-border);
+      border-radius: var(--size-control-radius);
+      background: var(--ui-control-background);
+      color: var(--ui-controls-text);
+      font: inherit;
+      font-size: var(--size-speed-option-font-size);
+      cursor: pointer;
+    }
+    .speed-option[aria-pressed="true"] {
+      border-color: var(--ui-control-selected-border);
+      background: var(--ui-control-selected-background);
+      color: var(--ui-control-selected-text);
+      font-weight: 700;
+    }
+    #scale-sequence-section {
+      margin-top: var(--size-player-row-gap);
+    }
+    #scale-sequence-heading {
+      margin-bottom: var(--size-sequence-heading-gap);
+      color: var(--ui-player-secondary-text);
+      font-size: var(--size-detail-font-size);
+      font-weight: 600;
+    }
+    #scale-sequence-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--size-sequence-octave-gap);
+    }
+    .scale-sequence-octave {
+      min-width: 0;
+    }
+    .scale-sequence-octave-heading {
+      margin-bottom: var(--size-sequence-octave-heading-gap);
+      color: var(--ui-sequence-degree);
+      font-size: var(--size-sequence-degree-font-size);
+      font-weight: 600;
+    }
+    .scale-sequence-octave-steps {
+      display: grid;
+      grid-template-columns: repeat(var(--sequence-degree-count), minmax(var(--size-sequence-step-min-width), 1fr));
+      gap: var(--size-sequence-step-gap);
+      overflow-x: auto;
+    }
+    .scale-sequence-step {
+      min-width: 0;
+      padding: var(--size-sequence-step-padding);
+      border: 1px solid var(--ui-sequence-step-border);
+      border-radius: var(--size-sequence-step-radius);
+      background: var(--ui-sequence-step-background);
+      text-align: center;
+    }
+    .scale-sequence-step.active {
+      border-color: var(--ui-sequence-step-active-border);
+      background: var(--ui-sequence-step-active-background);
+    }
+    .scale-sequence-note {
+      overflow: hidden;
+      color: var(--ui-sequence-note);
+      font-size: var(--size-sequence-note-font-size);
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .scale-sequence-degree {
+      margin-top: var(--size-sequence-degree-gap);
+      color: var(--ui-sequence-degree);
+      font-size: var(--size-sequence-degree-font-size);
+    }
+    .scale-sequence-holes {
+      display: flex;
+      justify-content: center;
+      gap: var(--size-sequence-hole-gap);
+      margin-top: var(--size-sequence-holes-gap);
+    }
+    .scale-sequence-hole {
+      flex: 0 0 var(--size-sequence-hole-diameter);
+      width: var(--size-sequence-hole-diameter);
+      height: var(--size-sequence-hole-diameter);
+      border: var(--size-hole-border-width) solid var(--ui-sequence-hole-border);
+      border-radius: 50%;
+    }
+    .scale-sequence-hole.closed {
+      border-color: var(--ui-sequence-hole-fill);
+      background: var(--ui-sequence-hole-fill);
+    }
+    .scale-sequence-hole.half {
+      border-color: var(--ui-sequence-hole-fill);
+      background: linear-gradient(90deg, var(--ui-sequence-hole-fill) 50%, transparent 50%);
+    }
+    #playback-fingers {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--size-playback-fingering-gap);
+      margin-top: var(--size-player-row-gap);
+    }
+    #playback-fingers.placeholder {
+      visibility: hidden;
+    }
+    .playback-fingering-caption {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: var(--size-progress-gap);
+    }
+    .playback-fingering-note {
+      color: var(--ui-player-text);
+      font-size: var(--size-playback-fingering-note-font-size);
+      font-weight: 700;
+    }
+    .playback-fingering-degree {
+      color: var(--ui-player-secondary-text);
+      font-size: var(--size-playback-fingering-degree-font-size);
+    }
+    .playback-fingering-holes {
+      display: flex;
+      justify-content: center;
+      gap: var(--size-hole-gap);
+    }
+    .playback-hole {
+      width: var(--size-hole-diameter);
+      height: var(--size-hole-diameter);
+      border: var(--size-hole-border-width) solid var(--ui-hole-border);
+      border-radius: 50%;
+    }
+    .playback-hole.closed {
+      background: var(--ui-hole-fill);
+      border-color: var(--ui-hole-fill);
+    }
+    .playback-hole.half {
+      background: linear-gradient(90deg, var(--ui-hole-fill) 50%, transparent 50%);
+      border-color: var(--ui-hole-fill);
+    }
+    #scale-progress {
+      display: flex;
+      justify-content: flex-start;
+      gap: var(--size-progress-gap);
+      margin-top: var(--size-detail-gap);
+    }
+    .scale-progress-dot {
+      flex: 0 0 var(--size-progress-dot);
+      width: var(--size-progress-dot);
+      height: var(--size-progress-dot);
+      border-radius: 50%;
+      background: var(--ui-progress-inactive);
+    }
+    .scale-progress-dot.active {
+      background: var(--ui-progress-active);
     }
     
     /* HTML Label Container Styling */
@@ -138,7 +405,7 @@
     #markdown-footer h1, #markdown-footer h2, #markdown-footer h3 {
       margin-top: 1rem;
       margin-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(255,255,255,0.15);
+      border-bottom: 1px solid var(--ui-footer-rule);
       padding-bottom: 0.3rem;
     }
     #markdown-footer p {
@@ -149,33 +416,61 @@
       margin-bottom: 1rem;
     }
     #markdown-footer code {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--ui-footer-code-background);
       padding: 0.2rem 0.4rem;
       border-radius: 4px;
       font-family: monospace;
     }
     #markdown-footer a {
-      color: #4da6ff;
+      color: var(--ui-footer-link);
     }
   </style>
 </head>
 <body>
 
-  <section id="key-controls" aria-label="Dial key settings">
-    <div class="key-control">
-      <h2>Your flute's native key</h2>
-      <div id="native-key-options" class="key-options" role="group" aria-label="Your flute's native key"></div>
-    </div>
-    <div class="key-control">
-      <h2>Key you want to play</h2>
-      <div id="target-key-options" class="key-options" role="group" aria-label="Key you want to play"></div>
+  <header id="page-intro">
+    <h1 id="page-title"></h1>
+    <p id="page-description"></p>
+  </header>
+
+  <section class="surface-panel">
+    <div id="key-controls">
+      <div class="key-control">
+        <h2 id="native-key-heading"></h2>
+        <div id="native-key-options" class="key-options" role="group"></div>
+      </div>
+      <div class="key-control">
+        <h2 id="target-key-heading"></h2>
+        <div id="target-key-options" class="key-options" role="group"></div>
+      </div>
     </div>
   </section>
 
-  <!-- Isolated Wheel Div at Top -->
-  <div id="wheel-container">
-    <svg id="wheelSvg"></svg>
-  </div>
+  <section id="wheel-panel" class="surface-panel">
+    <div id="wheel-container">
+      <svg id="wheelSvg"></svg>
+    </div>
+  </section>
+
+  <section id="scale-player" class="surface-panel">
+    <div id="scale-player-header">
+      <div>
+        <div id="scale-player-status" aria-live="polite"></div>
+        <div id="scale-player-detail"></div>
+        <div id="scale-progress"></div>
+      </div>
+      <button id="play-scale-button" type="button" aria-pressed="false"></button>
+    </div>
+      <div id="playback-speed-row">
+        <span id="playback-speed-label"></span>
+        <div id="playback-speed-options" role="group"></div>
+      </div>
+      <div id="scale-sequence-section">
+        <div id="scale-sequence-heading"></div>
+        <div id="scale-sequence-grid" role="group"></div>
+      </div>
+    <div id="playback-fingers"></div>
+  </section>
 
   <div id="markdown-footer"></div>
 
@@ -184,30 +479,208 @@
       // Toggle to force ring labels to always remain visually upright
       uprightLabels: false,
 
+      // Tweak the interface palette, text, sizing, motion, music, and playback here.
+      interface: {
+        colors: {
+          arrowFill: '#ffffff',
+          arrowStroke: '#000000',
+          arrowShadow: '0px 0px 3px rgba(0, 0, 0, 0.8)',
+          controlsText: '#f2f1e8',
+          controlBorder: '#686868',
+          controlBackground: '#252525',
+          controlSelectedBorder: '#B5A993',
+          controlSelectedBackground: '#D8D0BE',
+          controlSelectedText: '#303A35',
+          nativeKeySelectedBorder: '#718C7B',
+          nativeKeySelectedBackground: '#AFC6B6',
+          targetKeySelectedBorder: '#66899B',
+          targetKeySelectedBackground: '#9FB8C9',
+          playerBorder: '#454545',
+          playerBackground: '#20352D',
+          playerText: '#f2f1e8',
+          playerSecondaryText: '#b9b9b0',
+          sequenceStepBorder: '#B8B1A5',
+          sequenceStepBackground: '#C1BCB1',
+          sequenceStepActiveBorder: '#557789',
+          sequenceStepActiveBackground: '#A5B8BE',
+          sequenceNote: '#302E2A',
+          sequenceDegree: '#5A5650',
+          sequenceHoleBorder: '#24475F',
+          sequenceHoleFill: '#24475F',
+          playButtonBackground: '#D8D0BE',
+          playButtonText: '#303A35',
+          playButtonActiveBackground: '#B78363',
+          playButtonActiveText: '#FFF9F2',
+          holeBorder: '#f2f1e8',
+          holeFill: '#24475F',
+          progressInactive: '#666666',
+          progressActive: '#24475F',
+          playbackSectorFill: 'rgba(255, 255, 255, 0.1)',
+          playbackSectorStroke: '#000000',
+          playbackDotStroke: '#24475F',
+          playbackDotFill: '#24475F',
+          footerRule: 'rgba(255, 255, 255, 0.15)',
+          footerCodeBackground: 'rgba(255, 255, 255, 0.1)',
+          footerLink: '#4da6ff'
+        },
+        sizes: {
+          controlsWidth: 'min(100%, 600px)',
+          controlsPadding: '12px 16px 4px',
+          pageIntroMargin: '24px 0 4px',
+          pageTitleFontSize: '28px',
+          pageDescriptionGap: '6px',
+          pageDescriptionFontSize: '14px',
+          controlGap: '12px',
+          labelGap: '7px',
+          labelFontSize: '14px',
+          optionGap: '5px',
+          optionsPadding: '2px 1px 8px',
+          optionMinWidth: '42px',
+          optionHeight: '38px',
+          optionPadding: '5px 3px',
+          controlRadius: '12px',
+          buttonFontSize: '13px',
+          secondaryLabelGap: '2px',
+          secondaryLabelFontSize: '9px',
+          secondaryLabelLineHeight: '1',
+          playerWidth: 'min(100% - 24px, 800px)',
+          playerMargin: '12px 0 8px',
+          playerPadding: '14px 16px',
+          playerRadius: '8px',
+          playerHeaderGap: '12px',
+          statusFontSize: '17px',
+          detailGap: '4px',
+          detailFontSize: '12px',
+          playButtonWidth: '52px',
+          playButtonPadding: '0',
+          playButtonIconSize: '22px',
+          holeGap: '8px',
+          holeDiameter: '16px',
+          holeBorderWidth: '1px',
+          playbackFingeringGap: '4px',
+          playbackFingeringNoteFontSize: '14px',
+          playbackFingeringDegreeFontSize: '11px',
+          playerRowGap: '30px',
+          progressGap: '5px',
+          progressDot: '7px',
+          playbackSectorStrokeWidth: '5px',
+          playbackDotStrokeWidth: '1px',
+          speedControlGap: '6px',
+          speedOptionGap: '4px',
+          speedOptionPadding: '6px 2px',
+          speedOptionFontSize: '11px',
+          sequenceStepMinWidth: '64px',
+          sequenceOctaveGap: '10px',
+          sequenceOctaveHeadingGap: '4px',
+          sequenceStepGap: '5px',
+          sequenceStepPadding: '6px 2px',
+          sequenceStepRadius: '4px',
+          sequenceHeadingGap: '7px',
+          sequenceNoteFontSize: '11px',
+          sequenceDegreeGap: '2px',
+          sequenceDegreeFontSize: '9px',
+          sequenceHoleGap: '5px',
+          sequenceHoleDiameter: '12px',
+          sequenceHolesGap: '5px'
+        },
+        fonts: {
+          ui: "'Segoe UI', system-ui, sans-serif",
+          display: "'Noto Serif CJK SC', 'Noto Serif', Georgia, serif"
+        },
+        effects: {
+          playbackDotInactiveOpacity: 0.18
+        },
+        labels: {
+          pageTitle: '笛子 (Dizi) 指法轮盘',
+          pageDescription: 'Explore flute keys, fingerings, and a two-octave scale.',
+          keyControlsAria: 'Dial key settings',
+          nativeKey: "Your flute's native key",
+          targetKey: 'Key you want to play',
+          scalePlayerAria: 'Two-octave scale player',
+          scaleStatus: 'Press play to hear the scale in {target} major.',
+          scaleDetail: '{target} major · {native} flute',
+          scaleDegreeStatus: 'Degree {degree}{octaveSuffix} · {note}{octave}',
+          upperOctaveSuffix: ' · octave',
+          playScale: 'Play scale',
+          stopScale: 'Stop',
+          speedControl: 'Playback speed',
+          playbackSpeedAria: 'Scale playback speed',
+          speedOptionTemplate: '{speed}x',
+          scaleSequenceHeading: 'Scale fingering sequence',
+          scaleSequenceAria: 'Two-octave scale fingering sequence',
+          scaleSequenceOctaveLabels: ['Lower octave', 'Higher octave'],
+          scaleSequenceOctaveTemplate: 'Octave {octave}',
+          scaleStepAria: 'Degree {degree}{octaveSuffix}, {note}',
+          scaleDegreeTemplate: '{degree}{octaveSuffix}',
+          sequenceUpperOctaveSuffix: ' · octave',
+          currentFingeringAria: 'Current fingering',
+          scaleProgressAria: 'Scale playback progress',
+          closedHole: 'closed',
+          halfHole: 'half-open',
+          openHole: 'open',
+          unsupportedAudio: 'Web Audio is not supported in this browser.'
+        }
+      },
+      motion: {
+        selectionDurationMs: 500,
+        selectionEasing: 'easeInOutCubic',
+        snapProgressIncrement: 0.12,
+        inertiaFriction: 0.94,
+        inertiaStopVelocity: 0.1,
+        dragInertiaThreshold: 0.4,
+        velocityFrameDurationMs: 16.6,
+        minimumPointerDeltaMs: 16
+      },
+      music: {
+        noteNames: ['C', 'C#/D♭', 'D', 'E♭/D#', 'E', 'F', 'F#/G♭', 'G', 'A♭/G#', 'A', 'B♭/A#', 'B'],
+        majorOffsets: [0, 2, 4, 5, 7, 9, 11],
+        scaleDegrees: [1, 2, 3, 4, 5, 6, 7],
+        ringPitchOrigin: 9,
+      },
+      playback: {
+        octaveCount: 2,
+        speedOptions: [0.1, 0.2, 0.5, 1, 1.5, 1.7, 2],
+        defaultSpeed: 1,
+        noteDurationMs: 420,
+        interNoteGapMs: 0,
+        oscillatorTailMs: 20,
+        oscillatorType: 'sine',
+        baseMidiNote: 60,
+        displayOctaveOffset: 1,
+        referenceFrequencyHz: 440,
+        referenceMidiNote: 69,
+        attackDurationMs: 30,
+        attackGain: 0.28,
+        sustainGain: 0.22,
+        sustainRatio: 0.6,
+        releaseGain: 0
+      },
+
       colors: {
+        // background: '#202724', // Main canvas background
         background: '#111111', // Main canvas background
         
         // Default single ring colors (used as fallbacks if segment array isn't provided)
-        outer: '#FFef00',      
-        middle: '#009900',    
-        inner: '#0088FF',
+        outer: '#AFC6B6',
+        middle: '#D8D0BE',
+        inner: '#9FB8C9',
 
         // Configure individual colors for each segment (12 segments per ring).
         // Set to null or remove a ring's array to use its uniform fallback color above.
         outerSegments: [
-          '#FFef00', '#FFef00', '#FFef00', '#FFef00', 
-          '#FFef00', '#FFef00', '#FFef00', '#FFef00', 
-          '#FFef00', '#FFef00', '#FFef00', '#FFef00'
+          '#AFC6B6', '#AFC6B6', '#AFC6B6', '#AFC6B6',
+          '#AFC6B6', '#AFC6B6', '#AFC6B6', '#AFC6B6',
+          '#AFC6B6', '#AFC6B6', '#AFC6B6', '#AFC6B6'
         ],
         middleSegments: [
-          '#009900', '#009900', '#009900', '#009900', 
-          '#009900', '#009900', '#009900', '#009900', 
-          '#009900', '#009900', '#009900', '#009900'
+          '#D8D0BE', '#D8D0BE', '#D8D0BE', '#D8D0BE',
+          '#D8D0BE', '#D8D0BE', '#D8D0BE', '#D8D0BE',
+          '#D8D0BE', '#D8D0BE', '#D8D0BE', '#D8D0BE'
         ],
         innerSegments: [
-          '#0088FF', '#0088FF', '#0088FF', '#0088FF', 
-          '#0088FF', '#0088FF', '#0088FF', '#0088FF', 
-          '#0088FF', '#0088FF', '#0088FF', '#0088FF'
+          '#9FB8C9', '#9FB8C9', '#9FB8C9', '#9FB8C9',
+          '#9FB8C9', '#9FB8C9', '#9FB8C9', '#9FB8C9',
+          '#9FB8C9', '#9FB8C9', '#9FB8C9', '#9FB8C9'
         ]
       },
 
@@ -223,8 +696,8 @@
 
       // Configurable circle dot colors
       circleColors: {
-        fill: '#555555',            // Solid fill color & outline color for half dots
-        outlineStroke: '#555555',   // Stroke color for empty/outlined dots
+        fill: '#333333',            // Solid fill color & outline color for half dots
+        outlineStroke: '#333333',   // Stroke color for empty/outlined dots
         halfGradientSecondary: 'transparent' // Secondary stop color for half dots
       },
 
@@ -324,11 +797,19 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     const SVG_NS = "http://www.w3.org/2000/svg";
     const SEGMENTS = 12;
     const DEG_PER_SEGMENT = 360 / SEGMENTS;
-    const FRICTION = 0.94;
     const NUM_ROWS = 6;
-    const KEY_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const KEY_NAMES = CONFIG.music.noteNames;
+    const MAJOR_OFFSETS = CONFIG.music.majorOffsets;
     let nativeKey = 7;
     let targetKey = 7;
+    let playbackSpeed = CONFIG.playback.defaultSpeed;
+    let playbackRunId = 0;
+    let isScalePlaying = false;
+    let resumeScaleAfterRingTurn = false;
+    let currentOscillator = null;
+    let activePlaybackSector = null;
+    let activePlaybackDotRow = null;
+    let activePlaybackIndex = null;
 
     const svg = document.getElementById('wheelSvg');
     let center = { x: 0, y: 0 };
@@ -339,7 +820,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       const footer = document.getElementById('markdown-footer');
       if (!footer) return;
 
-      footer.style.color = CONFIG.markdownColor || '#FFFFFF';
+      footer.style.color = CONFIG.markdownColor;
 
       if (typeof marked !== 'undefined' && marked.parse) {
         footer.innerHTML = marked.parse(CONFIG.bottomMarkdown || '');
@@ -349,9 +830,45 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     }
 
     function updateBackground() {
-      if (CONFIG.colors && CONFIG.colors.background) {
-        document.body.style.backgroundColor = CONFIG.colors.background;
-      }
+      document.documentElement.style.setProperty('--page-background', CONFIG.colors.background);
+    }
+
+    function configPropertyName(name) {
+      return name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+    }
+
+    function applyInterfaceConfig() {
+      const root = document.documentElement;
+      const ui = CONFIG.interface;
+      Object.entries(ui.colors).forEach(([name, value]) => {
+        root.style.setProperty(`--ui-${configPropertyName(name)}`, value);
+      });
+      Object.entries(ui.sizes).forEach(([name, value]) => {
+        root.style.setProperty(`--size-${configPropertyName(name)}`, value);
+      });
+      Object.entries(ui.fonts).forEach(([name, value]) => {
+        root.style.setProperty(`--font-${configPropertyName(name)}`, value);
+      });
+      Object.entries(ui.effects).forEach(([name, value]) => {
+        root.style.setProperty(`--effect-${configPropertyName(name)}`, value);
+      });
+
+      const labels = ui.labels;
+      document.title = labels.pageTitle;
+      document.getElementById('page-title').textContent = labels.pageTitle;
+      document.getElementById('page-description').textContent = labels.pageDescription;
+      document.getElementById('key-controls').setAttribute('aria-label', labels.keyControlsAria);
+      document.getElementById('native-key-heading').textContent = labels.nativeKey;
+      document.getElementById('native-key-options').setAttribute('aria-label', labels.nativeKey);
+      document.getElementById('target-key-heading').textContent = labels.targetKey;
+      document.getElementById('target-key-options').setAttribute('aria-label', labels.targetKey);
+      document.getElementById('scale-player').setAttribute('aria-label', labels.scalePlayerAria);
+      document.getElementById('playback-speed-label').textContent = labels.speedControl;
+      document.getElementById('playback-speed-options').setAttribute('aria-label', labels.playbackSpeedAria);
+      document.getElementById('scale-sequence-heading').textContent = labels.scaleSequenceHeading;
+      document.getElementById('scale-sequence-grid').setAttribute('aria-label', labels.scaleSequenceAria);
+      document.getElementById('playback-fingers').setAttribute('aria-label', labels.currentFingeringAria);
+      document.getElementById('scale-progress').setAttribute('aria-label', labels.scaleProgressAria);
     }
 
     function updateDimensions() {
@@ -436,7 +953,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       const leftRowData = formatRowData(CONFIG.outerDotColumns[leftRowIndex]);
       const rightRowData = formatRowData(CONFIG.outerDotColumns[rightRowIndex]);
 
-      const renderRowAtAngle = (rowData, angleDeg) => {
+      const renderRowAtAngle = (rowData, angleDeg, rowIndex) => {
         const rad = (angleDeg - 90) * (Math.PI / 180);
         for (let idx = 0; idx < NUM_ROWS; idx++) {
           const val = rowData[idx];
@@ -448,6 +965,8 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
           circle.setAttribute('cx', cx);
           circle.setAttribute('cy', cy);
           circle.setAttribute('r', dotRadius);
+          circle.setAttribute('data-dot-row-index', rowIndex);
+          circle.setAttribute('data-dot-value', val);
 
           if (val === 1) {
             circle.setAttribute('fill', CONFIG.circleColors.fill);
@@ -482,6 +1001,29 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
             }
 
             circle.setAttribute('fill', `url(#${gradId})`);
+            const activeGradId = `${gradId}_playback`;
+            if (!document.getElementById(activeGradId)) {
+              const activeGrad = document.createElementNS(SVG_NS, 'linearGradient');
+              activeGrad.setAttribute('id', activeGradId);
+              activeGrad.setAttribute('x1', '100%');
+              activeGrad.setAttribute('y1', '0%');
+              activeGrad.setAttribute('x2', '0%');
+              activeGrad.setAttribute('y2', '0%');
+              activeGrad.setAttribute('gradientTransform', `rotate(${angleDeg + 90}, 0.5, 0.5)`);
+
+              const activeStop = document.createElementNS(SVG_NS, 'stop');
+              activeStop.setAttribute('offset', '50%');
+              activeStop.setAttribute('stop-color', CONFIG.interface.colors.playbackDotFill);
+
+              const transparentStop = document.createElementNS(SVG_NS, 'stop');
+              transparentStop.setAttribute('offset', '50%');
+              transparentStop.setAttribute('stop-color', CONFIG.circleColors.halfGradientSecondary || 'transparent');
+
+              activeGrad.appendChild(activeStop);
+              activeGrad.appendChild(transparentStop);
+              defs.appendChild(activeGrad);
+            }
+            circle.setAttribute('data-playback-highlight-fill', `url(#${activeGradId})`);
             circle.setAttribute('stroke', CONFIG.circleColors.fill);
             circle.setAttribute('stroke-width', '1.5');
           } else {
@@ -489,12 +1031,13 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
             circle.setAttribute('stroke', CONFIG.circleColors.outlineStroke);
             circle.setAttribute('stroke-width', '2');
           }
+          circle.setAttribute('data-default-fill', circle.getAttribute('fill'));
           g.appendChild(circle);
         }
       };
 
-      renderRowAtAngle(leftRowData, leftAngle);
-      renderRowAtAngle(rightRowData, rightAngle);
+      renderRowAtAngle(leftRowData, leftAngle, leftRowIndex);
+      renderRowAtAngle(rightRowData, rightAngle, rightRowIndex);
 
       return g;
     }
@@ -542,7 +1085,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       const fontSize = Math.max(ringWidth * fontSizeRatio, 10);
       contentSpan.style.fontSize = `${fontSize}px`;
       
-      const color = textColor || (CONFIG.labelColors ? CONFIG.labelColors.default : '#111111');
+      const color = textColor || CONFIG.labelColors.default;
       contentSpan.style.color = color;
       
       contentSpan.innerHTML = labelText || '';
@@ -616,6 +1159,17 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
         ringGroup.appendChild(segmentLayer);
         ringGroup.appendChild(overlayLayer);
 
+        if (cfg.id === 'outerRing') {
+          const playbackSector = document.createElementNS(SVG_NS, 'path');
+          playbackSector.setAttribute('class', 'playback-sector');
+          playbackSector.setAttribute('fill', CONFIG.interface.colors.playbackSectorFill);
+          playbackSector.setAttribute('stroke', CONFIG.interface.colors.playbackSectorStroke);
+          playbackSector.setAttribute('stroke-width', CONFIG.interface.sizes.playbackSectorStrokeWidth);
+          playbackSector.style.pointerEvents = 'none';
+          playbackSector.style.display = 'none';
+          ringGroup.appendChild(playbackSector);
+        }
+
         for (let i = 0; i < SEGMENTS; i++) {
           const startAngle = i * DEG_PER_SEGMENT;
           const endAngle = startAngle + DEG_PER_SEGMENT;
@@ -630,7 +1184,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
           path.setAttribute('d', createSegmentPath(cfg.rInner, cfg.rOuter, startAngle, endAngle));
           path.setAttribute('class', 'segment');
           path.setAttribute('fill', segFillColor);
-          path.setAttribute('stroke', CONFIG.lineColor || '#333333');
+          path.setAttribute('stroke', CONFIG.lineColor);
           segmentLayer.appendChild(path);
 
           if (cfg.type === 'dots') {
@@ -641,7 +1195,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
           if (cfg.type === 'middleLabels') {
             const labelText = CONFIG.middleRingLabels[i % CONFIG.middleRingLabels.length];
             const ratio = CONFIG.fontSizes ? CONFIG.fontSizes.middleRatio : 0.35;
-            const textColor = CONFIG.labelColors ? (CONFIG.labelColors.middle || CONFIG.labelColors.default) : '#111111';
+            const textColor = CONFIG.labelColors.middle || CONFIG.labelColors.default;
             const labelGroup = renderLabelForSegment(cfg.rInner, cfg.rOuter, midAngle, labelText, ratio, 0.7, textColor, currentRot);
             overlayLayer.appendChild(labelGroup);
           }
@@ -649,7 +1203,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
           if (cfg.type === 'innerLabels') {
             const labelText = CONFIG.innerRingLabels[i % CONFIG.innerRingLabels.length];
             const ratio = CONFIG.fontSizes ? CONFIG.fontSizes.innerRatio : 0.35;
-            const textColor = CONFIG.labelColors ? (CONFIG.labelColors.inner || CONFIG.labelColors.default) : '#111111';
+            const textColor = CONFIG.labelColors.inner || CONFIG.labelColors.default;
             const labelGroup = renderLabelForSegment(cfg.rInner, cfg.rOuter, midAngle, labelText, ratio, 0.85, textColor, currentRot);
             overlayLayer.appendChild(labelGroup);
           }
@@ -665,6 +1219,8 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
 
         svg.appendChild(ringGroup);
       });
+
+      updatePlaybackHighlight();
     }
 
     let activeRing = null;
@@ -704,7 +1260,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     }
 
     function ringIndexForPitch(pitch) {
-      return mod(pitch - 9, 12);
+      return mod(pitch - CONFIG.music.ringPitchOrigin, 12);
     }
 
     function ringIndexForRotation(rotation) {
@@ -712,7 +1268,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     }
 
     function pitchForArrowRotation(rotation, middleRotation) {
-      return mod(9 + ringIndexForRotation(rotation) - ringIndexForRotation(middleRotation), 12);
+      return mod(CONFIG.music.ringPitchOrigin + ringIndexForRotation(rotation) - ringIndexForRotation(middleRotation), 12);
     }
 
     function rotationForPitch(pitch) {
@@ -737,16 +1293,22 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       const startRotation = ringState.rotation;
       const targetRotation = angle + 360 * Math.round((startRotation - angle) / 360);
       const delta = targetRotation - startRotation;
-      const duration = 500;
+      const duration = CONFIG.motion.selectionDurationMs;
       let startTime = null;
       ringState.velocity = 0;
+      const easingFunctions = {
+        linear: (progress) => progress,
+        easeOutCubic: (progress) => 1 - Math.pow(1 - progress, 3),
+        easeInOutCubic: (progress) => progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2
+      };
+      const ease = easingFunctions[CONFIG.motion.selectionEasing] || easingFunctions.easeInOutCubic;
 
       function animate(timestamp) {
         if (startTime === null) startTime = timestamp;
         const progress = Math.min((timestamp - startTime) / duration, 1);
-        const eased = progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        const eased = ease(progress);
         applyRotation(ringState, startRotation + delta * eased);
 
         if (progress >= 1) {
@@ -772,6 +1334,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
 
       nativeOptions.querySelectorAll('[data-native-key]').forEach((button) => {
         button.addEventListener('click', () => {
+          stopScalePlayback();
           nativeKey = Number(button.dataset.nativeKey);
           updateKeyOptions();
           animateRingToRotation('outerRing', rotationForPitch(nativeKey));
@@ -780,11 +1343,14 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
 
       targetOptions.querySelectorAll('[data-target-key]').forEach((button) => {
         button.addEventListener('click', () => {
+          stopScalePlayback();
           targetKey = Number(button.dataset.targetKey);
           updateKeyOptions();
           animateRingToRotation('innerRing', rotationForPitch(targetKey));
         });
       });
+      renderScaleSequence();
+      renderPlaybackState(null, null, false);
     }
 
     function updateKeyRingRotations() {
@@ -794,6 +1360,300 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       setRingRotation('innerRing', innerRotation);
     }
 
+    function midiToFrequency(midi) {
+      return CONFIG.playback.referenceFrequencyHz * Math.pow(2, (midi - CONFIG.playback.referenceMidiNote) / 12);
+    }
+
+    function makeScaleSequence() {
+      const degreeCount = CONFIG.music.scaleDegrees.length;
+      return Array.from({ length: degreeCount * CONFIG.playback.octaveCount }, (_, index) => {
+        const degree = CONFIG.music.scaleDegrees[index % degreeCount];
+        const octave = Math.floor(index / degreeCount);
+        const octaveUp = octave > 0;
+        const semitone = MAJOR_OFFSETS[degree - 1] + octave * 12;
+        const pitch = mod(targetKey + MAJOR_OFFSETS[degree - 1], 12);
+        const sector = mod(pitch - nativeKey, 12);
+        const dotRowIndex = sector * 2 + (octaveUp ? 1 : 0);
+        return {
+          degree,
+          octave,
+          octaveUp,
+          pitch,
+          midi: CONFIG.playback.baseMidiNote + targetKey + semitone,
+          fingering: CONFIG.outerDotColumns[dotRowIndex],
+          sector,
+          dotRowIndex
+        };
+      });
+    }
+
+    function renderScaleSequence() {
+      const grid = document.getElementById('scale-sequence-grid');
+      if (!grid) return;
+      const sequence = makeScaleSequence();
+      const labels = CONFIG.interface.labels;
+      const degreeCount = CONFIG.music.scaleDegrees.length;
+      const getOctaveLabel = (octave) => labels.scaleSequenceOctaveLabels[octave]
+        || formatConfiguredLabel(labels.scaleSequenceOctaveTemplate, { octave: octave + 1 });
+      grid.style.setProperty('--sequence-degree-count', degreeCount);
+      grid.replaceChildren();
+
+      for (let octave = 0; octave < CONFIG.playback.octaveCount; octave++) {
+        const octaveRow = document.createElement('section');
+        octaveRow.className = 'scale-sequence-octave';
+        octaveRow.setAttribute('role', 'group');
+        octaveRow.setAttribute('aria-label', getOctaveLabel(octave));
+
+        const octaveHeading = document.createElement('div');
+        octaveHeading.className = 'scale-sequence-octave-heading';
+        octaveHeading.textContent = getOctaveLabel(octave);
+
+        const octaveSteps = document.createElement('div');
+        octaveSteps.className = 'scale-sequence-octave-steps';
+        octaveSteps.setAttribute('role', 'list');
+
+        sequence.filter((note) => note.octave === octave).forEach((note) => {
+          const index = octave * degreeCount + CONFIG.music.scaleDegrees.indexOf(note.degree);
+          const step = document.createElement('div');
+          step.className = 'scale-sequence-step';
+          step.setAttribute('role', 'listitem');
+          step.setAttribute('data-sequence-index', index);
+          step.setAttribute('aria-label', formatConfiguredLabel(labels.scaleStepAria, {
+            degree: note.degree,
+            octaveSuffix: note.octaveUp ? labels.sequenceUpperOctaveSuffix : '',
+            note: KEY_NAMES[note.pitch]
+          }));
+
+          const noteLabel = document.createElement('div');
+          noteLabel.className = 'scale-sequence-note';
+          noteLabel.textContent = KEY_NAMES[note.pitch];
+
+          const degreeLabel = document.createElement('div');
+          degreeLabel.className = 'scale-sequence-degree';
+          degreeLabel.textContent = formatConfiguredLabel(labels.scaleDegreeTemplate, {
+            degree: note.degree,
+            octaveSuffix: note.octaveUp ? labels.sequenceUpperOctaveSuffix : ''
+          });
+
+          const holes = document.createElement('div');
+          holes.className = 'scale-sequence-holes';
+          holes.setAttribute('aria-hidden', 'true');
+          note.fingering.forEach((value) => {
+            const hole = document.createElement('span');
+            hole.className = `scale-sequence-hole${value === 1 ? ' closed' : value === 0.5 ? ' half' : ''}`;
+            holes.appendChild(hole);
+          });
+
+          step.append(noteLabel, degreeLabel, holes);
+          octaveSteps.appendChild(step);
+        });
+
+        octaveRow.append(octaveHeading, octaveSteps);
+        grid.appendChild(octaveRow);
+      }
+      updateScaleSequenceHighlight();
+    }
+
+    function updateScaleSequenceHighlight() {
+      document.querySelectorAll('.scale-sequence-step').forEach((step, index) => {
+        step.classList.toggle('active', index === activePlaybackIndex);
+      });
+    }
+
+    function renderPlaybackFingering(note, isPlaceholder = false) {
+      const fingers = document.getElementById('playback-fingers');
+      const degreeLabel = formatConfiguredLabel(CONFIG.interface.labels.scaleDegreeTemplate, {
+        degree: note.degree,
+        octaveSuffix: note.octaveUp ? CONFIG.interface.labels.sequenceUpperOctaveSuffix : ''
+      });
+      const holeMarkup = note.fingering.map((value) =>
+        `<span class="playback-hole${value === 1 ? ' closed' : value === 0.5 ? ' half' : ''}" aria-label="${value === 1 ? CONFIG.interface.labels.closedHole : value === 0.5 ? CONFIG.interface.labels.halfHole : CONFIG.interface.labels.openHole}"></span>`
+      ).join('');
+
+      fingers.classList.toggle('placeholder', isPlaceholder);
+      fingers.setAttribute('aria-hidden', String(isPlaceholder));
+      fingers.innerHTML = `<div class="playback-fingering-caption"><span class="playback-fingering-note">${KEY_NAMES[note.pitch]}</span><span class="playback-fingering-degree">${degreeLabel}</span></div><div class="playback-fingering-holes">${holeMarkup}</div>`;
+    }
+
+    function renderPlaybackState(note, noteIndex, isPlaying) {
+      const status = document.getElementById('scale-player-status');
+      const detail = document.getElementById('scale-player-detail');
+      const playButton = document.getElementById('play-scale-button');
+      const fingers = document.getElementById('playback-fingers');
+      const progress = document.getElementById('scale-progress');
+
+      playButton.innerHTML = isPlaying
+        ? '<svg class="play-scale-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="5" width="14" height="14" fill="currentColor"></rect></svg>'
+        : '<svg class="play-scale-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg>';
+      playButton.setAttribute('aria-label', isPlaying ? CONFIG.interface.labels.stopScale : CONFIG.interface.labels.playScale);
+      playButton.setAttribute('aria-pressed', String(isPlaying));
+      if (note) {
+        const octave = Math.floor(note.midi / 12) - CONFIG.playback.displayOctaveOffset;
+        status.textContent = formatConfiguredLabel(CONFIG.interface.labels.scaleDegreeStatus, {
+          degree: note.degree,
+          octaveSuffix: note.octaveUp ? CONFIG.interface.labels.upperOctaveSuffix : '',
+          note: KEY_NAMES[note.pitch],
+          octave
+        });
+        detail.textContent = formatConfiguredLabel(CONFIG.interface.labels.scaleDetail, {
+          target: KEY_NAMES[targetKey],
+          native: KEY_NAMES[nativeKey]
+        });
+        renderPlaybackFingering(note);
+      } else {
+        status.textContent = formatConfiguredLabel(CONFIG.interface.labels.scaleStatus, {
+          target: KEY_NAMES[targetKey]
+        });
+        detail.textContent = formatConfiguredLabel(CONFIG.interface.labels.scaleDetail, {
+          target: KEY_NAMES[targetKey],
+          native: KEY_NAMES[nativeKey]
+        });
+        const placeholderNote = makeScaleSequence()[0];
+        if (placeholderNote) {
+          renderPlaybackFingering(placeholderNote, true);
+        } else {
+          fingers.innerHTML = '';
+          fingers.classList.add('placeholder');
+          fingers.setAttribute('aria-hidden', 'true');
+        }
+      }
+      progress.querySelectorAll('.scale-progress-dot').forEach((dot, index) => {
+        dot.classList.toggle('active', index === noteIndex);
+      });
+      activePlaybackSector = note ? note.sector : null;
+      activePlaybackDotRow = note ? note.dotRowIndex : null;
+      activePlaybackIndex = note ? noteIndex : null;
+      updatePlaybackHighlight();
+      updateScaleSequenceHighlight();
+    }
+
+    function formatConfiguredLabel(template, values) {
+      return template.replace(/\{(\w+)\}/g, (placeholder, name) => values[name] ?? placeholder);
+    }
+
+    function updatePlaybackHighlight() {
+      const outerRing = ringStates.outerRing?.element;
+      if (!outerRing) return;
+      outerRing.querySelectorAll('.playback-dot-active, .playback-dot-inactive').forEach((circle) => {
+        circle.classList.remove('playback-dot-active');
+        circle.classList.remove('playback-dot-inactive');
+        circle.setAttribute('fill', circle.getAttribute('data-default-fill'));
+      });
+      const highlight = outerRing.querySelector('.playback-sector');
+      if (!highlight) return;
+      if (activePlaybackSector === null) {
+        highlight.style.display = 'none';
+        return;
+      }
+      const activeRow = outerRing.querySelectorAll(`[data-dot-row-index="${activePlaybackDotRow}"]`);
+      activeRow.forEach((circle) => {
+        circle.classList.add('playback-dot-active');
+        if (circle.getAttribute('data-dot-value') === '0.5') {
+          circle.setAttribute('fill', circle.getAttribute('data-playback-highlight-fill'));
+        }
+      });
+      const inactiveRowIndex = activePlaybackDotRow % 2 === 0
+        ? activePlaybackDotRow + 1
+        : activePlaybackDotRow - 1;
+      outerRing.querySelectorAll(`[data-dot-row-index="${inactiveRowIndex}"]`).forEach((circle) => {
+        circle.classList.add('playback-dot-inactive');
+      });
+      const outerConfig = ringsConfig.find((cfg) => cfg.id === 'outerRing');
+      const startAngle = activePlaybackSector * DEG_PER_SEGMENT;
+      highlight.setAttribute('d', createSegmentPath(
+        outerConfig.rInner,
+        outerConfig.rOuter,
+        startAngle,
+        startAngle + DEG_PER_SEGMENT
+      ));
+      highlight.style.display = '';
+    }
+
+    async function playScale() {
+      if (isScalePlaying) {
+        stopScalePlayback();
+        return;
+      }
+
+      const runId = ++playbackRunId;
+      isScalePlaying = true;
+      renderPlaybackState(null, null, true);
+      const sequence = makeScaleSequence();
+      let audioContext;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) throw new Error(CONFIG.interface.labels.unsupportedAudio);
+        audioContext = window.scaleAudioContext || (window.scaleAudioContext = new AudioContextClass());
+        await audioContext.resume();
+        for (let index = 0; index < sequence.length; index++) {
+          if (runId !== playbackRunId) return;
+          const note = sequence[index];
+          const noteDuration = CONFIG.playback.noteDurationMs / 1000 / playbackSpeed;
+          const noteDurationMs = CONFIG.playback.noteDurationMs / playbackSpeed;
+          renderPlaybackState(note, index, true);
+          const oscillator = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          currentOscillator = oscillator;
+          oscillator.type = CONFIG.playback.oscillatorType;
+          oscillator.frequency.value = midiToFrequency(note.midi);
+          const now = audioContext.currentTime;
+          gain.gain.setValueAtTime(CONFIG.playback.releaseGain, now);
+          gain.gain.linearRampToValueAtTime(CONFIG.playback.attackGain, now + CONFIG.playback.attackDurationMs / 1000 / playbackSpeed);
+          gain.gain.linearRampToValueAtTime(CONFIG.playback.sustainGain, now + noteDuration * CONFIG.playback.sustainRatio);
+          gain.gain.linearRampToValueAtTime(CONFIG.playback.releaseGain, now + noteDuration);
+          oscillator.connect(gain).connect(audioContext.destination);
+          oscillator.start(now);
+          oscillator.stop(now + noteDuration + CONFIG.playback.oscillatorTailMs / 1000 / playbackSpeed);
+          await new Promise((resolve) => setTimeout(resolve, noteDurationMs + CONFIG.playback.interNoteGapMs / playbackSpeed));
+          if (currentOscillator === oscillator) currentOscillator = null;
+        }
+        if (runId === playbackRunId) {
+          isScalePlaying = false;
+          renderPlaybackState(null, null, false);
+        }
+      } catch (error) {
+        if (runId === playbackRunId) {
+          isScalePlaying = false;
+          renderPlaybackState(null, null, false);
+          document.getElementById('scale-player-status').textContent = error.message;
+        }
+      }
+    }
+
+    function stopScalePlayback() {
+      if (!isScalePlaying) return;
+      playbackRunId++;
+      isScalePlaying = false;
+      if (currentOscillator) {
+        try { currentOscillator.stop(); } catch (error) { /* Oscillator may have ended. */ }
+        currentOscillator = null;
+      }
+      renderPlaybackState(null, null, false);
+    }
+
+    function initializeScalePlayer() {
+      const progress = document.getElementById('scale-progress');
+      const progressCount = CONFIG.music.scaleDegrees.length * CONFIG.playback.octaveCount;
+      progress.innerHTML = Array.from({ length: progressCount }, () => '<span class="scale-progress-dot"></span>').join('');
+      renderPlaybackSpeedOptions();
+      document.getElementById('play-scale-button').addEventListener('click', playScale);
+      renderPlaybackState(null, null, false);
+    }
+
+    function renderPlaybackSpeedOptions() {
+      const options = document.getElementById('playback-speed-options');
+      options.innerHTML = CONFIG.playback.speedOptions.map((speed) => {
+        const label = formatConfiguredLabel(CONFIG.interface.labels.speedOptionTemplate, { speed });
+        return `<button class="speed-option" type="button" data-playback-speed="${speed}" aria-pressed="${speed === playbackSpeed}">${label}</button>`;
+      }).join('');
+      options.querySelectorAll('[data-playback-speed]').forEach((button) => {
+        button.addEventListener('click', () => {
+          playbackSpeed = Number(button.dataset.playbackSpeed);
+          renderPlaybackSpeedOptions();
+        });
+      });
+    }
+
     function snapToSegment(ringState) {
       const targetRotation = Math.round(ringState.rotation / DEG_PER_SEGMENT) * DEG_PER_SEGMENT;
       const startRot = ringState.rotation;
@@ -801,7 +1661,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       let progress = 0;
 
       function snapStep() {
-        progress += 0.12;
+        progress += CONFIG.motion.snapProgressIncrement;
         if (progress >= 1) {
           applyRotation(ringState, targetRotation);
           ringState.animId = null;
@@ -817,6 +1677,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     }
 
     function syncSelectionFromRing(ringState) {
+      stopScalePlayback();
       if (ringState.element.id === 'outerRing') {
         nativeKey = pitchForArrowRotation(ringState.rotation, ringStates.middleRing.rotation);
       } else if (ringState.element.id === 'innerRing') {
@@ -826,13 +1687,17 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
         targetKey = pitchForArrowRotation(ringStates.innerRing.rotation, ringState.rotation);
       }
       updateKeyOptions();
+      if (resumeScaleAfterRingTurn) {
+        resumeScaleAfterRingTurn = false;
+        playScale();
+      }
     }
 
     function startInertia(ringState) {
       function inertiaStep() {
-        ringState.velocity *= FRICTION;
+        ringState.velocity *= CONFIG.motion.inertiaFriction;
 
-        if (Math.abs(ringState.velocity) < 0.1) {
+        if (Math.abs(ringState.velocity) < CONFIG.motion.inertiaStopVelocity) {
           ringState.velocity = 0;
           snapToSegment(ringState);
         } else {
@@ -862,6 +1727,8 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
 
       activeRing = ringStates[targetRingId];
       if (!activeRing) return;
+      resumeScaleAfterRingTurn = isScalePlaying;
+      stopScalePlayback();
 
       if (e.cancelable) e.preventDefault();
       e.stopPropagation();
@@ -888,13 +1755,13 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       
       const currentAngle = getMouseAngle(e);
       const now = performance.now();
-      const dt = Math.max(now - lastTime, 16);
+      const dt = Math.max(now - lastTime, CONFIG.motion.minimumPointerDeltaMs);
 
       let angleDelta = currentAngle - lastAngle;
       if (angleDelta > 180) angleDelta -= 360;
       if (angleDelta < -180) angleDelta += 360;
 
-      activeRing.velocity = angleDelta * (16.6 / dt);
+      activeRing.velocity = angleDelta * (CONFIG.motion.velocityFrameDurationMs / dt);
 
       const totalDelta = currentAngle - startAngle;
       applyRotation(activeRing, initialRotation + totalDelta);
@@ -911,7 +1778,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       window.removeEventListener('touchmove', onPointerMove);
       window.removeEventListener('touchend', onPointerUp);
 
-      if (Math.abs(activeRing.velocity) > 0.4) {
+      if (Math.abs(activeRing.velocity) > CONFIG.motion.dragInertiaThreshold) {
         startInertia(activeRing);
       } else {
         snapToSegment(activeRing);
@@ -921,10 +1788,12 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     }
 
     window.addEventListener('resize', updateDimensions);
+    applyInterfaceConfig();
     renderMarkdownFooter();
     updateDimensions();
     updateKeyOptions();
     updateKeyRingRotations();
+    initializeScalePlayer();
   </script>
 </body>
 </html>
