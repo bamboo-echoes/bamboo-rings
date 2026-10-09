@@ -61,6 +61,52 @@
       pointer-events: none;
       filter: drop-shadow(0px 0px 3px rgba(0,0,0,0.8));
     }
+
+    #key-controls {
+      width: min(100%, 600px);
+      padding: 12px 16px 4px;
+      color: #f2f1e8;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .key-control + .key-control {
+      margin-top: 12px;
+    }
+    .key-control h2 {
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .key-options {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      padding: 2px 1px 8px;
+      scrollbar-width: thin;
+    }
+    .key-option {
+      flex: 0 0 42px;
+      min-height: 38px;
+      padding: 5px 3px;
+      border: 1px solid #686868;
+      border-radius: 5px;
+      background: #252525;
+      color: #f2f1e8;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .key-option[aria-pressed="true"] {
+      border-color: #ffef00;
+      background: #ffef00;
+      color: #111;
+      font-weight: 700;
+    }
+    .key-option small {
+      display: block;
+      margin-top: 2px;
+      font-size: 9px;
+      line-height: 1;
+    }
     
     /* HTML Label Container Styling */
     .html-label-container {
@@ -114,6 +160,17 @@
   </style>
 </head>
 <body>
+
+  <section id="key-controls" aria-label="Dial key settings">
+    <div class="key-control">
+      <h2>Your flute's native key</h2>
+      <div id="native-key-options" class="key-options" role="group" aria-label="Your flute's native key"></div>
+    </div>
+    <div class="key-control">
+      <h2>Key you want to play</h2>
+      <div id="target-key-options" class="key-options" role="group" aria-label="Key you want to play"></div>
+    </div>
+  </section>
 
   <!-- Isolated Wheel Div at Top -->
   <div id="wheel-container">
@@ -269,6 +326,9 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     const DEG_PER_SEGMENT = 360 / SEGMENTS;
     const FRICTION = 0.94;
     const NUM_ROWS = 6;
+    const KEY_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    let nativeKey = 7;
+    let targetKey = 7;
 
     const svg = document.getElementById('wheelSvg');
     let center = { x: 0, y: 0 };
@@ -639,6 +699,101 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       });
     }
 
+    function mod(n, m) {
+      return ((n % m) + m) % m;
+    }
+
+    function ringIndexForPitch(pitch) {
+      return mod(pitch - 9, 12);
+    }
+
+    function ringIndexForRotation(rotation) {
+      return mod(Math.round(rotation / DEG_PER_SEGMENT), SEGMENTS);
+    }
+
+    function pitchForArrowRotation(rotation, middleRotation) {
+      return mod(9 + ringIndexForRotation(rotation) - ringIndexForRotation(middleRotation), 12);
+    }
+
+    function rotationForPitch(pitch) {
+      const middleRotation = ringStates.middleRing ? ringStates.middleRing.rotation : 0;
+      return (ringIndexForPitch(pitch) + ringIndexForRotation(middleRotation)) * DEG_PER_SEGMENT;
+    }
+
+    function setRingRotation(ringId, angle) {
+      const ringState = ringStates[ringId];
+      if (!ringState) return;
+      if (ringState.animId) cancelAnimationFrame(ringState.animId);
+      ringState.animId = null;
+      ringState.velocity = 0;
+      applyRotation(ringState, angle);
+    }
+
+    function animateRingToRotation(ringId, angle) {
+      const ringState = ringStates[ringId];
+      if (!ringState) return;
+      if (ringState.animId) cancelAnimationFrame(ringState.animId);
+
+      const startRotation = ringState.rotation;
+      const targetRotation = angle + 360 * Math.round((startRotation - angle) / 360);
+      const delta = targetRotation - startRotation;
+      const duration = 500;
+      let startTime = null;
+      ringState.velocity = 0;
+
+      function animate(timestamp) {
+        if (startTime === null) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const eased = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        applyRotation(ringState, startRotation + delta * eased);
+
+        if (progress >= 1) {
+          ringState.animId = null;
+        } else {
+          ringState.animId = requestAnimationFrame(animate);
+        }
+      }
+
+      ringState.animId = requestAnimationFrame(animate);
+    }
+
+    function updateKeyOptions() {
+      const nativeOptions = document.getElementById('native-key-options');
+      const targetOptions = document.getElementById('target-key-options');
+
+      nativeOptions.innerHTML = KEY_NAMES.map((name, key) =>
+        `<button class="key-option" type="button" data-native-key="${key}" aria-pressed="${key === nativeKey}">${name}</button>`
+      ).join('');
+      targetOptions.innerHTML = KEY_NAMES.map((name, key) =>
+        `<button class="key-option" type="button" data-target-key="${key}" aria-pressed="${key === targetKey}">${name}</button>`
+      ).join('');
+
+      nativeOptions.querySelectorAll('[data-native-key]').forEach((button) => {
+        button.addEventListener('click', () => {
+          nativeKey = Number(button.dataset.nativeKey);
+          updateKeyOptions();
+          animateRingToRotation('outerRing', rotationForPitch(nativeKey));
+        });
+      });
+
+      targetOptions.querySelectorAll('[data-target-key]').forEach((button) => {
+        button.addEventListener('click', () => {
+          targetKey = Number(button.dataset.targetKey);
+          updateKeyOptions();
+          animateRingToRotation('innerRing', rotationForPitch(targetKey));
+        });
+      });
+    }
+
+    function updateKeyRingRotations() {
+      const outerRotation = rotationForPitch(nativeKey);
+      const innerRotation = rotationForPitch(targetKey);
+      setRingRotation('outerRing', outerRotation);
+      setRingRotation('innerRing', innerRotation);
+    }
+
     function snapToSegment(ringState) {
       const targetRotation = Math.round(ringState.rotation / DEG_PER_SEGMENT) * DEG_PER_SEGMENT;
       const startRot = ringState.rotation;
@@ -650,6 +805,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
         if (progress >= 1) {
           applyRotation(ringState, targetRotation);
           ringState.animId = null;
+          syncSelectionFromRing(ringState);
         } else {
           const current = startRot + delta * (1 - (1 - progress) * (1 - progress));
           applyRotation(ringState, current);
@@ -658,6 +814,18 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       }
 
       ringState.animId = requestAnimationFrame(snapStep);
+    }
+
+    function syncSelectionFromRing(ringState) {
+      if (ringState.element.id === 'outerRing') {
+        nativeKey = pitchForArrowRotation(ringState.rotation, ringStates.middleRing.rotation);
+      } else if (ringState.element.id === 'innerRing') {
+        targetKey = pitchForArrowRotation(ringState.rotation, ringStates.middleRing.rotation);
+      } else if (ringState.element.id === 'middleRing') {
+        nativeKey = pitchForArrowRotation(ringStates.outerRing.rotation, ringState.rotation);
+        targetKey = pitchForArrowRotation(ringStates.innerRing.rotation, ringState.rotation);
+      }
+      updateKeyOptions();
     }
 
     function startInertia(ringState) {
@@ -755,6 +923,8 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
     window.addEventListener('resize', updateDimensions);
     renderMarkdownFooter();
     updateDimensions();
+    updateKeyOptions();
+    updateKeyRingRotations();
   </script>
 </body>
 </html>
