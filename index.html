@@ -288,13 +288,16 @@
     }
     #scale-player-header {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      gap: var(--size-player-header-gap);
+      text-align: center;
+      gap: 12px;
     }
-    #scale-player-header > div:first-child {
-      flex: 1 1 auto;
-      min-width: 0;
+    #scale-player-info {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     #scale-player-status {
       font-family: var(--font-display);
@@ -304,6 +307,19 @@
       margin-top: var(--size-detail-gap);
       color: var(--ui-player-secondary-text);
       font-size: var(--size-detail-font-size);
+    }
+    #play-scale-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    #play-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
     }
     #play-scale-button {
       display: grid;
@@ -320,7 +336,6 @@
       font-size: var(--size-button-font-size);
       font-weight: 700;
       cursor: pointer;
-      flex: 0 0 auto;
     }
     #play-scale-button[aria-pressed="true"] {
       background: var(--ui-play-button-active-background);
@@ -334,40 +349,79 @@
       cursor: default;
       opacity: 0.7;
     }
-    #playback-speed-row {
-      display: flex;
-      flex-direction: column;
-      gap: var(--size-speed-control-gap);
-      margin-top: var(--size-player-row-gap);
+    .speed-step-btn {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: var(--ui-play-button-background);
+      color: var(--ui-play-button-text);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .speed-step-btn:hover {
+      background: var(--ui-control-selected-background);
+    }
+    .speed-step-icon {
+      width: 20px;
+      height: 20px;
     }
     #playback-speed-label {
       color: var(--ui-player-secondary-text);
-      font-size: var(--size-detail-font-size);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
     }
-    #playback-speed-options {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: var(--size-speed-option-gap);
+
+    #playback-fingers {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--size-playback-fingering-gap);
+      margin-top: var(--size-player-row-gap);
+      margin-bottom: var(--size-player-row-gap);
     }
-    .speed-option {
-      min-width: 0;
-      padding: var(--size-speed-option-padding);
-      border: 1px solid var(--ui-control-border);
-      border-radius: var(--size-control-radius);
-      background: var(--ui-control-background);
-      color: var(--ui-controls-text);
-      font: inherit;
-      font-size: var(--size-speed-option-font-size);
-      cursor: pointer;
+    .playback-fingering-caption {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: var(--size-progress-gap);
     }
-    .speed-option[aria-pressed="true"] {
-      border-color: var(--ui-control-selected-border);
-      background: var(--ui-control-selected-background);
-      color: var(--ui-control-selected-text);
+    .playback-fingering-note {
+      color: var(--ui-player-text);
+      font-size: var(--size-playback-fingering-note-font-size);
       font-weight: 700;
     }
+    .playback-fingering-degree {
+      color: var(--ui-player-secondary-text);
+      font-size: var(--size-playback-fingering-degree-font-size);
+    }
+    .playback-fingering-holes {
+      display: flex;
+      justify-content: center;
+      gap: var(--size-hole-gap);
+    }
+    .playback-hole {
+      width: var(--size-hole-diameter);
+      height: var(--size-hole-diameter);
+      border: var(--size-hole-border-width) solid var(--ui-hole-border);
+      border-radius: 50%;
+    }
+    .playback-hole.closed {
+      background: var(--ui-hole-fill);
+      border-color: var(--ui-hole-fill);
+    }
+    .playback-hole.half {
+      background: linear-gradient(90deg, var(--ui-hole-fill) 50%, transparent 50%);
+      border-color: var(--ui-hole-fill);
+    }
+
     #scale-sequence-section {
-      margin-top: var(--size-player-row-gap);
+      margin-top: 10px;
     }
     #scale-sequence-heading {
       margin-bottom: var(--size-sequence-heading-gap);
@@ -441,54 +495,10 @@
       border-color: var(--ui-sequence-hole-fill);
       background: linear-gradient(90deg, var(--ui-sequence-hole-fill) 50%, transparent 50%);
     }
-    #playback-fingers {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: var(--size-playback-fingering-gap);
-      margin-top: var(--size-player-row-gap);
-    }
-    #playback-fingers.placeholder {
-      visibility: hidden;
-    }
-    .playback-fingering-caption {
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      gap: var(--size-progress-gap);
-    }
-    .playback-fingering-note {
-      color: var(--ui-player-text);
-      font-size: var(--size-playback-fingering-note-font-size);
-      font-weight: 700;
-    }
-    .playback-fingering-degree {
-      color: var(--ui-player-secondary-text);
-      font-size: var(--size-playback-fingering-degree-font-size);
-    }
-    .playback-fingering-holes {
-      display: flex;
-      justify-content: center;
-      gap: var(--size-hole-gap);
-    }
-    .playback-hole {
-      width: var(--size-hole-diameter);
-      height: var(--size-hole-diameter);
-      border: var(--size-hole-border-width) solid var(--ui-hole-border);
-      border-radius: 50%;
-    }
-    .playback-hole.closed {
-      background: var(--ui-hole-fill);
-      border-color: var(--ui-hole-fill);
-    }
-    .playback-hole.half {
-      background: linear-gradient(90deg, var(--ui-hole-fill) 50%, transparent 50%);
-      border-color: var(--ui-hole-fill);
-    }
+
     #scale-progress {
       display: flex;
-      justify-content: flex-start;
+      justify-content: center;
       gap: var(--size-progress-gap);
       margin-top: var(--size-detail-gap);
     }
@@ -554,22 +564,38 @@
 
   <section id="scale-player" class="surface-panel">
     <div id="scale-player-header">
-      <div>
+      <div id="scale-player-info">
         <div id="scale-player-status" aria-live="polite"></div>
         <div id="scale-player-detail"></div>
         <div id="scale-progress"></div>
       </div>
-      <button id="play-scale-button" type="button" aria-pressed="false"></button>
+      <div id="play-scale-container">
+        <div id="play-controls-row">
+          <button id="speed-down-btn" class="speed-step-btn" type="button" aria-label="Decrease speed">
+            <svg class="speed-step-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <polygon points="12,18 6,12 12,6 12,18" fill="currentColor"></polygon>
+              <polygon points="19,18 13,12 19,6 19,18" fill="currentColor"></polygon>
+            </svg>
+          </button>
+          <button id="play-scale-button" type="button" aria-pressed="false"></button>
+          <button id="speed-up-btn" class="speed-step-btn" type="button" aria-label="Increase speed">
+            <svg class="speed-step-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <polygon points="5,6 11,12 5,18 5,6" fill="currentColor"></polygon>
+              <polygon points="12,6 18,12 12,18 12,6" fill="currentColor"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div id="playback-speed-label"></div>
+      </div>
     </div>
-      <div id="playback-speed-row">
-        <span id="playback-speed-label"></span>
-        <div id="playback-speed-options" role="group"></div>
-      </div>
-      <div id="scale-sequence-section">
-        <div id="scale-sequence-heading"></div>
-        <div id="scale-sequence-grid" role="group"></div>
-      </div>
+
+    <!-- Persistent Large Fingering Display -->
     <div id="playback-fingers"></div>
+
+    <div id="scale-sequence-section">
+      <div id="scale-sequence-heading"></div>
+      <div id="scale-sequence-grid" role="group"></div>
+    </div>
   </section>
 
   <!-- Slide-out Sidebar from Right & Backdrop -->
@@ -666,7 +692,7 @@
           playbackFingeringGap: '4px',
           playbackFingeringNoteFontSize: '14px',
           playbackFingeringDegreeFontSize: '11px',
-          playerRowGap: '30px',
+          playerRowGap: '20px',
           progressGap: '5px',
           progressDot: '7px',
           playbackSectorStrokeWidth: '5px',
@@ -822,9 +848,10 @@ ___
    - **你想演奏的调 (Key you want to play)**：点击对应的音名按钮，用来选择你计划演奏的目标音乐调性。这会自动将内环旋转并对齐到对应的音阶位置。
    - 选中的选项按钮会显示高亮边框和背景色，界面上的轮盘会随之自动旋转完成对齐。
 2) **播放与视听同步 (Scale Player)**：
-   - **播放/停止按钮 (Play Scale)**：点击播放器右侧的圆形播放按钮，即可开始自动播放两个八度的音阶序列音频。播放时，图标会切换为停止方块。
+   - **播放/停止按钮 (Play Scale)**：点击播放器中央的圆形播放按钮，即可开始自动播放两个八度的音阶序列音频。播放时，图标会切换为停止方块。
    - **高亮指法指示**：在音阶自动播放过程中，外环上会动态出现一个带有虚线边界的扇形高亮区域，用来实时指示当前音符所在的扇区与指法圆点。同时，下方的音阶序列步骤与指法图也会同步高亮。
-   - **调节播放速度 (Playback Speed)**：点击播放器下方的速度选项按钮（支持 0.1x 至 2x ），可随时减慢或加快音频的播放节奏与视听进度。
+   - **指法总览行 (Playback Fingering Display)**：位于播放器控件下方、序列步骤之上的大号指法图圆点行会始终可见，并在静止时默认显示音阶的第一音，在播放时随当前音符实时同步更新。
+   - **调节播放速度 (Playback Speed)**：点击播放按钮左右两侧的双三角快退/快进按钮，可随时减慢或加快音频的播放节奏与视听进度。
 3) **手动旋转轮盘（灵活调整）**：
    - 如果需要手动微调或自由探索，你可以直接用鼠标点击并拖动（或在触摸屏上滑动）三个同心圆环（外环、中环、内环）中的任意一个进行独立旋转。
    - 当松开鼠标或手指后，轮盘会自动带有惯性并平滑“吸附”对齐到最接近的扇形格子上。
@@ -846,9 +873,10 @@ The tool consists of 3 concentric rings: the **Outer Ring**, **Middle Ring**, an
    - **Key you want to play**: Click the corresponding pitch button to choose your target musical key. This action automatically rotates and aligns the inner ring to the matching scale position.
    - Selected option buttons will highlight with a distinct border and background tint, while the wheel rings instantly rotate into alignment.
 2) **Audio & Visual Scale Player**:
-   - **Play/Stop Button**: Click the round play button on the right side of the scale player to listen to the automated two-octave scale audio sequence. During playback, the icon toggles to a stop square.
+   - **Play/Stop Button**: Click the round play button at the center of the scale player to listen to the automated two-octave scale audio sequence. During playback, the icon toggles to a stop square.
    - **Live Fingering Highlight**: As the scale plays, a dotted-stroke sector highlight dynamically moves across the outer ring to point out the active note and its drill-down dot rows. The sequence steps and finger-hole diagrams below update simultaneously in real time.
-   - **Playback Speed**: Click any of the speed buttons (ranging from 0.1x to 2x) located below the player header to slow down or speed up the audio rhythm and visual progression.
+   - **Playback Fingering Display**: The row of larger finger holes located right below the player controls and above the sequence tiles remains permanently visible, defaulting to the first note of the scale when stopped and dynamically tracking the active note during playback.
+   - **Playback Speed**: Click the double-triangle buttons flanking the play button to slow down or speed up the audio rhythm and visual progression.
 3) **Manual Ring Rotation (Flexible Adjustment)**:
    - For custom exploration or manual adjustments, you can directly click and drag (or touch and drag) any of the three concentric rings (Outer, Middle, or Inner) to spin them independently.
    - Upon release, the wheel applies smooth inertia and automatically snaps into place at the nearest grid segment.
@@ -981,8 +1009,6 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       document.getElementById('target-key-heading').textContent = labels.targetKey;
       document.getElementById('target-key-options').setAttribute('aria-label', labels.targetKey);
       document.getElementById('scale-player').setAttribute('aria-label', labels.scalePlayerAria);
-      document.getElementById('playback-speed-label').textContent = labels.speedControl;
-      document.getElementById('playback-speed-options').setAttribute('aria-label', labels.playbackSpeedAria);
       document.getElementById('scale-sequence-heading').textContent = labels.scaleSequenceHeading;
       document.getElementById('scale-sequence-grid').setAttribute('aria-label', labels.scaleSequenceAria);
       document.getElementById('playback-fingers').setAttribute('aria-label', labels.currentFingeringAria);
@@ -1577,11 +1603,11 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
 
     function updateScaleSequenceHighlight() {
       document.querySelectorAll('.scale-sequence-step').forEach((step, index) => {
-        step.classList.toggle('active', index === activePlaybackIndex);
+        step.classList.toggle('active', index === activePlaybackIndex && isScalePlaying);
       });
     }
 
-    function renderPlaybackFingering(note, isPlaceholder = false) {
+    function renderPlaybackFingering(note) {
       const fingers = document.getElementById('playback-fingers');
       const degreeLabel = formatConfiguredLabel(CONFIG.interface.labels.scaleDegreeTemplate, {
         degree: note.degree,
@@ -1591,8 +1617,6 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
         `<span class="playback-hole${value === 1 ? ' closed' : value === 0.5 ? ' half' : ''}" aria-label="${value === 1 ? CONFIG.interface.labels.closedHole : value === 0.5 ? CONFIG.interface.labels.halfHole : CONFIG.interface.labels.openHole}"></span>`
       ).join('');
 
-      fingers.classList.toggle('placeholder', isPlaceholder);
-      fingers.setAttribute('aria-hidden', String(isPlaceholder));
       fingers.innerHTML = `<div class="playback-fingering-caption"><span class="playback-fingering-note">${KEY_NAMES[note.pitch]}</span><span class="playback-fingering-degree">${degreeLabel}</span></div><div class="playback-fingering-holes">${holeMarkup}</div>`;
     }
 
@@ -1600,7 +1624,6 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       const status = document.getElementById('scale-player-status');
       const detail = document.getElementById('scale-player-detail');
       const playButton = document.getElementById('play-scale-button');
-      const fingers = document.getElementById('playback-fingers');
       const progress = document.getElementById('scale-progress');
 
       playButton.innerHTML = isPlaying
@@ -1608,6 +1631,10 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
         : '<svg class="play-scale-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg>';
       playButton.setAttribute('aria-label', isPlaying ? CONFIG.interface.labels.stopScale : CONFIG.interface.labels.playScale);
       playButton.setAttribute('aria-pressed', String(isPlaying));
+
+      const sequence = makeScaleSequence();
+      const currentNote = note || sequence[0];
+
       if (note) {
         const octave = Math.floor(note.midi / 12) - CONFIG.playback.displayOctaveOffset;
         status.textContent = formatConfiguredLabel(CONFIG.interface.labels.scaleDegreeStatus, {
@@ -1620,7 +1647,6 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
           target: KEY_NAMES[targetKey],
           native: KEY_NAMES[nativeKey]
         });
-        renderPlaybackFingering(note);
       } else {
         status.textContent = formatConfiguredLabel(CONFIG.interface.labels.scaleStatus, {
           target: KEY_NAMES[targetKey]
@@ -1629,21 +1655,16 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
           target: KEY_NAMES[targetKey],
           native: KEY_NAMES[nativeKey]
         });
-        const placeholderNote = makeScaleSequence()[0];
-        if (placeholderNote) {
-          renderPlaybackFingering(placeholderNote, true);
-        } else {
-          fingers.innerHTML = '';
-          fingers.classList.add('placeholder');
-          fingers.setAttribute('aria-hidden', 'true');
-        }
       }
+
+      renderPlaybackFingering(currentNote);
+
       progress.querySelectorAll('.scale-progress-dot').forEach((dot, index) => {
-        dot.classList.toggle('active', index === noteIndex);
+        dot.classList.toggle('active', isPlaying && index === noteIndex);
       });
-      activePlaybackSector = note ? note.sector : null;
-      activePlaybackDotRow = note ? note.dotRowIndex : null;
-      activePlaybackIndex = note ? noteIndex : null;
+      activePlaybackSector = isScalePlaying && note ? note.sector : null;
+      activePlaybackDotRow = isScalePlaying && note ? note.dotRowIndex : null;
+      activePlaybackIndex = isScalePlaying && note ? noteIndex : null;
       updatePlaybackHighlight();
       updateScaleSequenceHighlight();
     }
@@ -1662,7 +1683,7 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       });
       const highlight = outerRing.querySelector('.playback-sector');
       if (!highlight) return;
-      if (activePlaybackSector === null) {
+      if (!isScalePlaying || activePlaybackSector === null) {
         highlight.style.display = 'none';
         return;
       }
@@ -1674,7 +1695,6 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
         }
       });
       
-      // Fade out ALL circles that don't belong to the active dot row during playback
       outerRing.querySelectorAll('circle').forEach((circle) => {
         const rowIndex = Number(circle.getAttribute('data-dot-row-index'));
         if (rowIndex !== activePlaybackDotRow) {
@@ -1759,23 +1779,37 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
       const progress = document.getElementById('scale-progress');
       const progressCount = CONFIG.music.scaleDegrees.length * CONFIG.playback.octaveCount;
       progress.innerHTML = Array.from({ length: progressCount }, () => '<span class="scale-progress-dot"></span>').join('');
-      renderPlaybackSpeedOptions();
+      
       document.getElementById('play-scale-button').addEventListener('click', playScale);
-      renderPlaybackState(null, null, false);
-    }
+      
+      const speeds = CONFIG.playback.speedOptions;
+      const speedLabelElem = document.getElementById('playback-speed-label');
+      
+      function updateSpeedLabel() {
+        speedLabelElem.textContent = `${playbackSpeed}x`;
+      }
+      updateSpeedLabel();
 
-    function renderPlaybackSpeedOptions() {
-      const options = document.getElementById('playback-speed-options');
-      options.innerHTML = CONFIG.playback.speedOptions.map((speed) => {
-        const label = formatConfiguredLabel(CONFIG.interface.labels.speedOptionTemplate, { speed });
-        return `<button class="speed-option" type="button" data-playback-speed="${speed}" aria-pressed="${speed === playbackSpeed}">${label}</button>`;
-      }).join('');
-      options.querySelectorAll('[data-playback-speed]').forEach((button) => {
-        button.addEventListener('click', () => {
-          playbackSpeed = Number(button.dataset.playbackSpeed);
-          renderPlaybackSpeedOptions();
-        });
+      document.getElementById('speed-down-btn').addEventListener('click', () => {
+        const currentIndex = speeds.indexOf(playbackSpeed);
+        if (currentIndex > 0) {
+          playbackSpeed = speeds[currentIndex - 1];
+          updateSpeedLabel();
+        }
       });
+
+      document.getElementById('speed-up-btn').addEventListener('click', () => {
+        const currentIndex = speeds.indexOf(playbackSpeed);
+        if (currentIndex < speeds.length - 1 && currentIndex !== -1) {
+          playbackSpeed = speeds[currentIndex + 1];
+          updateSpeedLabel();
+        } else if (currentIndex === -1) {
+          playbackSpeed = speeds[3]; // default to 1x if mismatch
+          updateSpeedLabel();
+        }
+      });
+
+      renderPlaybackState(null, null, false);
     }
 
     function snapToSegment(ringState) {
