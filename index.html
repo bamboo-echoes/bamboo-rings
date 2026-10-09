@@ -500,7 +500,7 @@
           playerText: '#f2f1e8',
           playerSecondaryText: '#b9b9b0',
           sequenceStepBorder: '#B8B1A5',
-          sequenceStepBackground: '#C1BCB1',
+          sequenceStepBackground: '#AFC6B6',
           sequenceStepActiveBorder: '#557789',
           sequenceStepActiveBackground: '#A5B8BE',
           sequenceNote: '#302E2A',
@@ -515,7 +515,7 @@
           holeFill: '#24475F',
           progressInactive: '#666666',
           progressActive: '#24475F',
-          playbackSectorFill: 'rgba(255, 255, 255, 0.1)',
+          playbackSectorFill: '#A5B8BEAA',
           playbackSectorStroke: '#000000',
           playbackDotStroke: '#24475F',
           playbackDotFill: '#24475F',
@@ -584,8 +584,8 @@
           sequenceHolesGap: '5px'
         },
         fonts: {
-          ui: "'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei', system-ui, sans-serif",
-          display: "'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei', system-ui, sans-serif"
+          ui: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif",
+          display: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
         },
         effects: {
           playbackDotInactiveOpacity: 0.18
@@ -1158,18 +1158,23 @@ This music wheel is provided for Chinese flute students and teachers to quickly 
         const overlayLayer = document.createElementNS(SVG_NS, 'g');
 
         ringGroup.appendChild(segmentLayer);
-        ringGroup.appendChild(overlayLayer);
 
+        // Move playbackSector here so it renders BEFORE the dots/overlay layer
         if (cfg.id === 'outerRing') {
           const playbackSector = document.createElementNS(SVG_NS, 'path');
           playbackSector.setAttribute('class', 'playback-sector');
           playbackSector.setAttribute('fill', CONFIG.interface.colors.playbackSectorFill);
           playbackSector.setAttribute('stroke', CONFIG.interface.colors.playbackSectorStroke);
           playbackSector.setAttribute('stroke-width', CONFIG.interface.sizes.playbackSectorStrokeWidth);
+          // Add dotted/dashed stroke styling here
+          playbackSector.setAttribute('stroke-dasharray', '1, 8'); // Adjust numbers to change dot spacing/size
+          playbackSector.setAttribute('stroke-linecap', 'square');   // Makes the dashes rounded like dots
           playbackSector.style.pointerEvents = 'none';
           playbackSector.style.display = 'none';
           ringGroup.appendChild(playbackSector);
         }
+
+        ringGroup.appendChild(overlayLayer);
 
         for (let i = 0; i < SEGMENTS; i++) {
           const startAngle = i * DEG_PER_SEGMENT;
