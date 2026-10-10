@@ -35,6 +35,36 @@
       color: var(--ui-player-text);
       font-family: var(--font-ui);
     }
+    #instructions-panel {
+      width: var(--size-player-width);
+      margin: var(--size-player-margin);
+      padding: 20px 0 0 0;
+      font-family: var(--font-ui);
+      text-align: right;
+    }
+    /* Instructions Toggle Button aligned with title */
+    #instructions-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid var(--ui-control-border);
+      border-radius: var(--size-control-radius);
+      background: var(--ui-control-background);
+      color: var(--ui-controls-text);
+      font-family: var(--font-ui);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #instructions-toggle-btn:hover {
+      border-color: var(--ui-control-selected-border);
+      background: var(--ui-control-selected-background);
+      color: var(--ui-control-selected-text);
+    }
     #page-intro {
       width: var(--size-player-width);
       margin: var(--size-page-intro-margin);
@@ -60,30 +90,6 @@
       color: var(--ui-player-secondary-text);
       font-size: var(--size-page-description-font-size);
       line-height: 1.45;
-    }
-
-    /* Instructions Toggle Button aligned with title */
-    #instructions-toggle-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border: 1px solid var(--ui-control-border);
-      border-radius: var(--size-control-radius);
-      background: var(--ui-control-background);
-      color: var(--ui-controls-text);
-      font-family: var(--font-ui);
-      font-size: 20px;
-      font-weight: 600;
-      cursor: pointer;
-      flex-shrink: 0;
-      white-space: nowrap;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    #instructions-toggle-btn:hover {
-      border-color: var(--ui-control-selected-border);
-      background: var(--ui-control-selected-background);
-      color: var(--ui-control-selected-text);
     }
 
     /* Slide-out Sidebar from Right & Backdrop */
@@ -534,16 +540,18 @@
   </style>
 </head>
 <body>
+  <section id="instructions-panel">
+    <button id="instructions-toggle-btn" type="button">
+      <span id="toggle-btn-text">使用说明 / Instructions 👉📖</span>
+    </button>
+  </section>
 
-  <header id="page-intro">
+  <section id="page-intro">
     <div class="page-intro-text">
       <h1 id="page-title"></h1>
       <p id="page-description"></p>
     </div>
-    <button id="instructions-toggle-btn" type="button">
-      <span>📖</span> <span id="toggle-btn-text">使用说明 / Instructions</span>
-    </button>
-  </header>
+  </section>
 
   <section class="surface-panel">
     <div id="key-controls">
